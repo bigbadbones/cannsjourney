@@ -15,6 +15,8 @@ function _init()
  sentence  = ""
  menuid = 1
  selectid = 1
+ townid = 1
+ 
  menuscreen ={}
  
  menuscreen[1] = {}
@@ -77,11 +79,12 @@ function _init()
 	sy = 25
 	celw = 12
 	celh = 6	
-	mapxoffset = -175
-	mapyoffset = -100
+	mapxoffset = -245
+	mapyoffset = -130
 	world="overworld"
  inittext()
  initnpcs()
+ init_mapelems()
 end
 
 
@@ -137,6 +140,7 @@ function _update()
  	handleinputs_titlescreen()
  elseif gamestate == 1 then
  	handleinputs_worldscreen()
+ 	
  elseif gamestate == 2 then
   handleinputs_menuscreen()
  end
@@ -147,6 +151,7 @@ function _draw()
 		draw_titlescreen()
  elseif (gamestate==1) then
   draw_worldscreen()
+  updatemapinteracts()
 	elseif gamestate ==2 then
 	 draw_menuscreen()
 	end
@@ -313,7 +318,7 @@ function updatetext()
 end
 -->8
 function draw_titlescreen()
- version = 0.15
+ version = 0.2
  cls()
  print("version: "..version,5,5,10)
  print("   welcome to can's quest\n - a journey thorugh foon - ",10,30,10)
@@ -383,11 +388,9 @@ function handleinputs_menuscreen()
   if btnp(3) and menuscreen[menuid].len>=selectid+1 then
   	selectid+=1
   end
-  
   if btnp(4) then
   	selectmenu()
   end
-  
 end
 
 
@@ -395,9 +398,10 @@ end
 function draw_worldscreen()
   cls()
   drawmap()
- 	spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
-  drawnpcs() 
-end
+ 	drawnpcs() 
+  draw_mapelems()
+  spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
+ end
 
 function handleinputs_worldscreen()
   currtime= time()
@@ -460,35 +464,63 @@ function handleinputs_worldscreen()
 
 end
 -->8
-
-function generatecansentences()
-
-   nounnum = flr(rnd(#nouns)+1)
-   verbnum = flr(rnd(#verbs)+1)
-   noun = nouns[nounnum]
-   verb = verbs[verbnum]
-   life = flr(rnd(10000))
-   sentence = "can nr."..life..":\n".."i just "..verb.."\n"..noun
-   
-   return (sentence)
- end
-
-
-function checkmemory()
-
-	if not canmemory[2]  then
-   canmemory[2] = true
-   nounnum = flr(rnd(#nouns)+1)
-   verbnum = flr(rnd(#verbs)+1)
-   noun = nouns[nounnum]
-   verb = verbs[verbnum]
-   life = flr(rnd(10000))
-   sentence = "can just "..verb.."\n"..noun..
-   "\non his "..life.."th life" 
+function init_mapelems()
+ nr_of_towns =1
+ towns ={}
+ for n=1,nr_of_towns do 
+  add(towns,{})
+  towns[n].nr_of_elems = 0
+  towns[n].nr_of_interacts=0
  end
  
-   print (sentence,5,20,10)
+ --hogsface
+ towns[1].nr_of_elems =2 
+ towns[1].elems=
+ {
+ 
+ {114,120,003,"tavern"},
+ {114,125,004,nil}
+ 
+ }
+ 
+end
+
+
+function draw_mapelems()
+ if not (world=="overworld")and 
+ towns[townid] then
+ 
+  for n=1,towns[townid].nr_of_elems do
+   elem =towns[townid].elems[n] 
+   spr(elem[1],
+   (elem[2]-cellx) *8+sx,
+   (elem[3]-celly) *8+sy)
+  end
+ 
  end
+
+end
+
+function updatemapinteracts()
+
+if not (world=="overworld") then
+  for n=1,towns[townid].nr_of_elems do
+   elem =towns[townid].elems[n] 
+ 
+   if (isplayerintersecting(
+    ((elem[2]-cellx) *8+sx),
+    ((elem[3]-celly) *8+sy))
+    )
+    then
+   	 if elem[4] then
+   	 	teleport(elem[4])
+   	 end
+   	 
+   end
+  end
+
+	end
+end
 -->8
 function drawmap()
 
@@ -555,7 +587,7 @@ function teleport(location,isexit)
  		loc = oldlocs[#oldlocs]
  		del(oldlocs,loc)
  		can.x = loc[1]
- 		can.y = loc[2]
+ 		can.y = loc[2]+20
  	else
  		can.x = 65
  		can.y = 55
@@ -574,7 +606,7 @@ function teleport(location,isexit)
  		loc = oldlocs[#oldlocs]
  		del(oldlocs,loc)
  		can.x = loc[1]
- 		can.y = loc[2]
+ 		can.y = loc[2]+5
  	else
  		can.x = 58
  		can.y = 70
@@ -761,7 +793,6 @@ function updatenpcs()
   movesprite(npcs[n])
  end
  
- --playertouching()
 end
 
 function drawnpcs()
@@ -787,7 +818,7 @@ function drawnpcs()
   	npcs[n].x+mapxoffset,
   	npcs[n].y+mapyoffset,
   	1,1,npcs[n].faceleft,false)
-  	if  isplayerintersecting(npcs[n]) then	
+  	if  isplayerintersecting(npcs[n].x,npcs[n].y) then	
   		add(intersecting,n)
 		end
   end
@@ -796,36 +827,22 @@ function drawnpcs()
 end
 
 
-
-function isintersecting(sprite1,sprite2)
+function isplayerintersecting(spr_x,spr_y)
  intersect = false
  
- x_s1 = sprite1.x
- y_s1 = sprite1.y
- y_s2 = sprite2.y
- x_s2 = sprite2.x
-
+ if world == "overworld" then
+  x_s1 = can.x - mapxoffset
+  y_s1 = can.y - mapyoffset
+  
+ else
  
- if (x_s1 <= x_s2)
- and(x_s2 <= (x_s1+8))
- --and(y_s1 <= y_s2)
- --and(y_s2 <= (y_s1+8)) 
-then    
-    intersect = true
+  x_s1 = can.x
+  y_s1 = can.y 
+  
  end
  
- return intersect
- 
-end
-
-
-function isplayerintersecting(sprite2)
- intersect = false
- 
- x_s1 = can.x - mapxoffset
- y_s1 = can.y - mapyoffset
- y_s2 = sprite2.y+4
- x_s2 = sprite2.x+4
+ y_s2 = spr_y+4
+ x_s2 = spr_x+4
 
  
  if (x_s1 <= x_s2)
@@ -839,6 +856,19 @@ then
  return intersect
  
 end
+
+function generatecansentences()
+
+   nounnum = flr(rnd(#nouns)+1)
+   verbnum = flr(rnd(#verbs)+1)
+   noun = nouns[nounnum]
+   verb = verbs[verbnum]
+   life = flr(rnd(10000))
+   sentence = "can nr."..life..":\n".."i just "..verb.."\n"..noun
+   
+   return (sentence)
+ end
+
 
 -->8
 
@@ -1061,10 +1091,10 @@ __gff__
 __map__
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e1e1e1e1e1e1e1e1e1e1e1e01010101010101010101010101010101010101010101013c013c3c3c3c3c3c3c3c3c3c3c3c3c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a2b2b2b2b2b2b2b2b2b2b0c
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e01010101010101010101010101010101010101010101013c013c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121212121212121213
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e010101010101010101010101010101010101010101010101013c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212126312121212121213
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212123538121212121213
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121233121212121213
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121233121212121213
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e010101010101010101010101010101010101010101010101013c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121212121212121213
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121212121212121213
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121212121212121213
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121212121212121213
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111212121212121212121213
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e01010101010101010101010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002b2b2b2b43432b2b2b2b2b2c
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2101010101010101010101010101010101010101010101010118181818181818181818181818181818181818181818181818181818181818181818181818181800000000000000000000000000000000000000000000000000004343000000000000
