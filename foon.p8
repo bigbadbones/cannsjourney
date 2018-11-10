@@ -28,7 +28,7 @@ function _init()
  
  animation_ongoing = false
 
- gamestate = 0 
+ gamestate = 0
 	mapnames_enabled = false
  sentence  = ""
  menuid = 1
@@ -188,9 +188,11 @@ function _update()
   	
   elseif gamestate == 2 then
    handleinputs_menuscreen()
-   
   elseif gamestate == 3 then
   	handleinputs_battlescreen()
+  
+  elseif gamestate == 4 then
+  	 --noop
   end
  end
 end
@@ -208,7 +210,9 @@ function _draw()
  	 draw_menuscreen()
  	elseif gamestate ==3 then
  		draw_battlescreen()
- 	end
+  elseif gamestate ==4 then
+   draw_gameover()
+  end
  end
 end
 -->8
@@ -385,7 +389,7 @@ battlestats = {{}}
 
 battlestats[1] = {}
 battlestats[1].attack = 10
-battlestats[1].magic = 10
+battlestats[1].magic = 50
 battlestats[1].hp = 100
 battlestats[1].mp = 100
 battlestats[1].defense = .5
@@ -429,6 +433,12 @@ magic_anim.slides = {85,86}
 magic_anim.location = {0,0}
 magic_anim.index = 1
 
+
+
+function draw_gameover()
+cls()
+print("---- game over ----",20,50,10)
+end
 
 ----------- animation ------
 
@@ -652,6 +662,7 @@ end
 
 
 function startbattle(enemyid)
+ battleturn = false
  battleselect = 1
  if npcs[enemyid].battlestats.hp>0 then
   gamestate = 3
@@ -710,11 +721,11 @@ function drawhealthbars()
  print ("hp:",xoff,yoff,8)
  rectfill(xoff+12,
  yoff,
- xoff+battlestats[1].hp/2,
+ xoff+ 12 +battlestats[1].hp/2,
  yoff+barheight,8)
  rect(xoff+12,
  yoff,
- xoff+barwidth,
+ xoff+12+barwidth,
  yoff+barheight,2)
  
  print ("mp:",
@@ -723,12 +734,12 @@ function drawhealthbars()
  12)
  rectfill(xoff+12,
  yoff + hpmpspace,
- xoff +battlestats[1].mp/2,
+ xoff+12 +battlestats[1].mp/2,
  yoff + hpmpspace+ barheight,
  12)
  rect(xoff+12,
  yoff + hpmpspace,
- xoff +barwidth,
+ xoff+12 +barwidth,
  yoff + hpmpspace+ barheight,
  1)
  
@@ -762,6 +773,15 @@ function drawhealthbars()
  1) 
  end
  
+function checkmp(id)
+
+if battlestats[id].mp > 0 then
+ 	return true
+ else
+ 	return false
+ 	end
+end
+ 
 function returntoworld()
   enemy = nil
   gamestate = 1
@@ -779,7 +799,9 @@ function battleselectmenu()
    elseif battleselect ==1 then
    	win = attack(1,2)
    elseif battleselect ==2 then
-   	win = magic(1,2)
+   	if checkmp(1) then
+   		win = magic(1,2)
+   	end
   	end
   	if win then print ("you win!!",50,50,10)
  		wait(20)
@@ -791,29 +813,28 @@ function battleselectmenu()
  end
 end
 
-function relativebar(health,width)
-
-if health <0.1 then
-
-return 0
-
-else
-
-return health*width
-end
-end
 
 function magic (idsource,iddest)
 	source = battlestats[idsource]
 	dest = battlestats[iddest]
 	damage =  source.magic * dest.defense
 	dest.hp -= damage
-    start_animation(magic_anim,iddest)
+	source.mp -= 10
+	if source.mp<0 then
+		source.mp = 0
+	end
+ start_animation(magic_anim,iddest)
 	battleturn =  not battleturn
 	if dest.hp <0 then dest.hp = 0 
 	 return true 
 	else return false
 	end
+end
+
+function gameover()
+
+	gamestate = 4
+
 end
 
 function enemyturn()
@@ -824,6 +845,8 @@ function enemyturn()
 	end
 	if win then
 	 	print ("you lose!!",50,50,10)
+ 		wait(20)
+			gameover()
  end
 end
 function draw_battlemenu()
