@@ -28,8 +28,7 @@ function _init()
  
  animation_ongoing = false
 
- gamestate = 0 //0 is title screen
-
+ gamestate = 0 
 	mapnames_enabled = false
  sentence  = ""
  menuid = 1
@@ -476,7 +475,7 @@ end
 
 ----------- title -----------
 function draw_titlescreen()
- version = 0.2
+ version = 0.5
  cls()
  print("version: "..version,5,5,10)
  print("   welcome to can's quest\n - a journey thorugh foon - ",10,30,10)
@@ -1223,6 +1222,7 @@ function initnpcs()
  npcs[1].frames = {96,96,97,97}
  npcs[1].x= 19*8
  npcs[1].y= 15*8
+ npcs[1].name = "grimhoof"
  npcs[1].randommoves = false
  npcs[1].path={
  {19*8,15*8},
@@ -1260,6 +1260,7 @@ function initnpcs()
  npcs[3].frames = {89,89,90,90}
  npcs[3].x= 57*8
  npcs[3].y= 28*8
+ npcs[3].name = "villager"
  npcs[3].randommoves = false
  npcs[3].path={
  {57*8,28*8},
@@ -1285,6 +1286,7 @@ function initnpcs()
  npcs[5].frames = {103,103,104,104}
  npcs[5].x= 45*8
  npcs[5].y= 53*8
+ npcs[5].name = "tradesman"
  npcs[5].randommoves = false
  npcs[5].path={
  {45*8,53*8},
@@ -1297,6 +1299,7 @@ function initnpcs()
  npcs[6].frames = {91,91,92,92}
  npcs[6].x= 22*8
  npcs[6].y= 26*8
+ npcs[6].name = "trainee wizard"
  npcs[6].randommoves = false
  npcs[6].path={
  {22*8,26*8},
