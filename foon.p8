@@ -1,6 +1,20 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
+function getmapstate()
+ if mapnames_enabled then
+	 return "[ enabled ]"
+ else
+ 	return "[ disabled ]"
+ end
+end
+
+function togglemap()
+ mapnames_enabled = not mapnames_enabled
+ return ""	 
+end
+
+
 function _init()
  copycount = 10
  can = {}
@@ -11,11 +25,12 @@ function _init()
  can.speed = 1
  can.size = {8,8}
  can.faceleft = false
+ 
  animation_ongoing = false
 
  gamestate = 0 //0 is title screen
 
-
+	mapnames_enabled = false
  sentence  = ""
  menuid = 1
  selectid = 1
@@ -24,10 +39,11 @@ function _init()
  menuscreen ={}
  
  menuscreen[1] = {}
- menuscreen[1].len = 1
+ menuscreen[1].len = 2
  menuscreen[1].text = 
  {
- {"inventory",2}
+ {"inventory",2},
+ {"settings",3}
  }
  menuscreen[1].icons = {}
  
@@ -44,6 +60,19 @@ function _init()
  68,
  84
  }
+ 
+ 
+ menuscreen[3] = {}
+ menuscreen[3].len = 3
+ menuscreen[3].icons ={}
+ menuscreen[3].text =
+ {
+ {"map names ",-1,{false,1},{true,0}},
+ {"back",1}
+ }
+
+
+ 
  
  music(1)
  canmemory ={}
@@ -90,6 +119,17 @@ function _init()
  initnpcs()
  init_mapelems()
 end
+
+
+function perform_referenced_functions(id)
+ if id == 0 then 
+ 	return togglemap()
+ elseif id == 1 then 
+ 	return getmapstate()
+ end
+end
+ 
+  
 
 
 
@@ -325,7 +365,6 @@ end
 
 function updatetext()
  stringstodraw = {}
- --{text,{x,y},timetodelete}
  for s=1,#stringlist do
   string = stringlist[s]
 	 if (string[3] <=currtime) then
@@ -341,7 +380,38 @@ canhealth = {1,1}
 enemyhealth ={1,1}
 battleselect = 1
 animation = {}
-battleturn = 0
+battleturn = false
+
+battlestats = {{}}
+
+battlestats[1] = {}
+battlestats[1].attack = 10
+battlestats[1].magic = 10
+battlestats[1].hp = 100
+battlestats[1].mp = 100
+battlestats[1].defense = .5
+
+battlestats[2] = {}
+battlestats[2].attack = 5
+battlestats[2].magic = 5
+battlestats[2].defense = .75
+battlestats[2].hp = 100
+battlestats[2].mp = 100
+
+
+
+function attack(idsource,iddest)
+	source = battlestats[idsource]
+	dest = battlestats[iddest]
+	damage =  source.attack * dest.defense
+	dest.hp -= damage
+    start_animation(attack_anim,iddest)
+	battleturn =  not battleturn
+	if dest.hp <0 then dest.hp = 0 
+	 return true 
+	else return false
+	end
+end
 
 
 attack_anim = {}
@@ -355,9 +425,17 @@ attack_anim.index = 1
 
 
 
+
+
+
 ----------- animation ------
 
 function start_animation(a,loc)
+if loc == 2 then
+	loc = {95,75}
+else
+	loc = {15,75}
+end
  a.index = 1
  a.location = {loc[1],loc[2]}
 	animation = a
@@ -439,7 +517,15 @@ function drawmenu(menuid)
 	if (menuscreen[menuid]) then
  	for m=1,menuscreen[menuid].len do
   		if menuscreen[menuid].text[m] then
-  			print(menuscreen[menuid].text[m][1],10,20+10*m,10)
+  			item = menuscreen[menuid].text[m]
+  			print(item[1],10,20+10*m,10)
+  		 if item[2] == -1 then
+   		 for  i=3,  #item do
+   		  if item[i][1] == false then
+   		  		print (perform_referenced_functions(item[i][2]),60,20+10*m,10)
+ 						end
+ 					end
+   		end
   		end
   		if menuscreen[menuid].icons[m] then  			
   			spr(menuscreen[menuid].icons[m],100,20+10*m)
@@ -449,12 +535,22 @@ function drawmenu(menuid)
 end
 
 function selectmenu()
-	if menuscreen[menuid].text[selectid][2]!=0then
-  menuid = menuscreen[menuid].text[selectid][2]
+ data = menuscreen[menuid].text[selectid]
+	if data[2]>0 then
+  menuid = data[2]
  	selectid = 1
  	sfx(18)
+ elseif data[2] == -1 then
+   for  i=3, #data do
+   	sfx(18)
+    if data[i][1] == true then
+   		  		perform_referenced_functions(data[i][2])
+ 			end
+ 		end
  end
 end
+
+
 
 function handleinputs_menuscreen()
   if btnp(5) then
@@ -516,13 +612,6 @@ function handleinputs_worldscreen()
    	yadjust-=can.speed 
    end
   end
-  if btn(4) then
-  
-  	drawtext= true
-  
-  else
-  	drawtext=false
-  end
   
   if btnp(5) then
   	gamestate = 2
@@ -555,16 +644,16 @@ function draw_battlescreen()
  print("!!battle!!",50,10,7)
  draw_battle_art()
 	draw_battlemenu()
-	
 end
 
 function getenemysprite()
-updatesprite(npcs[2])
-return {npcs[2],"evil ogre"}
+e = flr(rnd(5))+1
+updatesprite(npcs[e])
+return npcs[e]
 end
 
 function draw_battle_art()
- drawhealthbars(canhealth,enemyhealth)
+ drawhealthbars()
 
 
  updatesprite(can)
@@ -572,28 +661,29 @@ function draw_battle_art()
  15,
  75)
  print ("can\nthe yellow",10,30,10)
- 
-	enemy = getenemysprite ()
-	spr(enemy[1].frames[enemy[1].frameid],
+ if enemy == nil then
+		enemy = getenemysprite ()
+	end
+	updatesprite(enemy)
+	spr(enemy.frames[enemy.frameid],
 	95,
 	75,
 	1,1,true,	false)	
- print (enemy[2],75,30,10)
+ print (enemy.name,75,30,10)
 end
 
 
-function drawhealthbars(chealth,ehealth)
+function drawhealthbars()
  local xoff = 0
  local yoff = 50
  local barwidth = 50
  local barheight = 5
  local enemyspace = 75
  local hpmpspace = 8
- print (enemyhealth[1],10,10,9)
  print ("hp:",xoff,yoff,8)
  rectfill(xoff+12,
  yoff,
- xoff+barwidth*chealth[1],
+ xoff+battlestats[1].hp/2,
  yoff+barheight,8)
  rect(xoff+12,
  yoff,
@@ -606,7 +696,7 @@ function drawhealthbars(chealth,ehealth)
  12)
  rectfill(xoff+12,
  yoff + hpmpspace,
- xoff +barwidth*canhealth[2],
+ xoff +battlestats[1].mp/2,
  yoff + hpmpspace+ barheight,
  12)
  rect(xoff+12,
@@ -616,23 +706,26 @@ function drawhealthbars(chealth,ehealth)
  1)
  
  print ("hp:",xoff-10+enemyspace,yoff,8)
- rectfill(xoff+enemyspace,
- yoff,
- xoff+relativebar(enemyhealth[1],barwidth)+
+  rectfill(
+  xoff+enemyspace,
+  yoff,
+  xoff+battlestats[2].hp/2+
   enemyspace,
- yoff+barheight,8)
+  yoff+barheight,
+ 8)
  rect(
  xoff+enemyspace,
  yoff,
  xoff+barwidth+enemyspace,
- yoff+barheight,2)
+ yoff+barheight,
+ 2)
  print ("mp:",
  xoff+enemyspace-10,
  yoff+hpmpspace,
  12)
  rectfill(xoff+enemyspace,
  yoff + hpmpspace,
- xoff + enemyspace+relativebar(ehealth[2],barwidth),
+ xoff + enemyspace+battlestats[2].mp/2,
  yoff + hpmpspace+ barheight,
  12)
  rect(xoff+enemyspace,
@@ -642,18 +735,29 @@ function drawhealthbars(chealth,ehealth)
  1) 
  end
  
+function returntoworld()
+  enemy = nil
+  gamestate = 1
+  menuid = 1
+  selectid=1
+end
+ 
 function battleselectmenu()
- if (	battleturn == 0)
+ if (	battleturn == false)
+
  and not animation_ongoing then
+	  win = false
   	if battleselect == 3 then
-  	  gamestate = 1
-    	menuid = 1
-    	selectid=1
+  	  returntoworld()
    elseif battleselect ==1 then
-   	attack()
+   	win = attack(1,2)
    elseif battleselect ==2 then
-   	magic()
+   	win = magic(1,2)
   	end
+  	if win then print ("you win!!",50,50,10)
+ 		wait(20)
+ 		   returntoworld()
+ 	end
  else
  	enemyturn()
  end
@@ -671,16 +775,6 @@ return health*width
 end
 end
 
-function attack()
- 
- if enemyhealth[1] >=0.01
- then
-		enemyhealth[1] -=0.1
-		start_animation(attack_anim,{95,72})
-	end
-	battleturn = 1
-end
-
 function magic ()
  if enemyhealth[1] > 0.01
  then
@@ -689,18 +783,17 @@ function magic ()
 end
 
 function enemyturn()
+ local win = false
 	local move = flr(rnd(2))
 	if (move != -1) then
-	 if canhealth[1] >=0.01 then
-			canhealth[1] -=0.1
-			start_animation(attack_anim,{15,75})
-	
-		end
+		win = attack(2,1)	
 	end
-		battleturn = 0
+	if win then
+	 	print ("you lose!!",50,50,10)
+ end
 end
 function draw_battlemenu()
- if (battleturn == 1)
+ if (battleturn == true)
  then
 	 enemyturn()
  end
@@ -1018,7 +1111,7 @@ function drawmap()
 
  if world == "overworld" then
   	map(0, 0,mapxoffset, mapyoffset, 128, 64 )
-			if drawtext then
+			if mapnames_enabled then
  			for s=1,#stringstodraw do
  			 string = stringstodraw[s]
  				print(string[1],string[2][1]+mapxoffset,string[2][2]+mapyoffset,0)
@@ -1039,7 +1132,7 @@ function drawmap()
  
 end
 -->8
-
+function wait(a) for i = 1,a do flip() end end
 -->8
 
 function initnpcs()
@@ -1058,6 +1151,7 @@ function initnpcs()
   npcs[n].futurepath = {}
   npcs[n].faceleft = false
   npcs[n].msg = ""
+  npcs[n].name = ""
   npcs[n].msgyoffset = 0
   npcs[n].msgxoffset = 0
 
@@ -1099,7 +1193,8 @@ function initnpcs()
  npcs[2].frames = {87,87,88,88}
  npcs[2].x= 30*8
  npcs[2].y = 20*8
- npcs[2].msg = "ogre: top o' the \nmornin' to ya"
+ npcs[2].name = "ogre"
+ npcs[2].msg = npcs[2].name..": top o' the \nmornin' to ya"
  npcs[2].randommoves = false
  npcs[2].path={
  {30*8,20*8},
@@ -1128,16 +1223,16 @@ function initnpcs()
 
 
  --skeleton
- 
  npcs[4].speed =1
  npcs[4].frames = {71,71,72,72}
  npcs[4].x= 33*8
  npcs[4].y= 19*8
- npcs[4].msg = "clax: fight me!"
+ npcs[4].name = "clax"
+ npcs[4].msg = npcs[4].name..": fight me!"
  npcs[4].randommoves = false
  npcs[4].path={
  {33*8,19*8},
- {35*8,19*8} 
+ {35*8,19*8}
  }
  
  --guy in the southeast
