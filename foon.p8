@@ -391,12 +391,7 @@ battlestats[1].hp = 100
 battlestats[1].mp = 100
 battlestats[1].defense = .5
 
-battlestats[2] = {}
-battlestats[2].attack = 5
-battlestats[2].magic = 5
-battlestats[2].defense = .75
-battlestats[2].hp = 100
-battlestats[2].mp = 100
+battlestats[2] ={}
 
 
 
@@ -426,6 +421,14 @@ attack_anim.index = 1
 
 
 
+magic_anim = {}
+magic_anim.running = false
+magic_anim.lastupdate = nil
+magic_anim.duration = .2
+magic_anim.audio = 17
+magic_anim.slides = {85,86}
+magic_anim.location = {0,0}
+magic_anim.index = 1
 
 
 ----------- animation ------
@@ -478,7 +481,7 @@ function draw_titlescreen()
  print("version: "..version,5,5,10)
  print("   welcome to can's quest\n - a journey thorugh foon - ",10,30,10)
  print("controls:",10,60,7)
- print("press 'z' to check your map",10,70,7)
+ print("press 'z' to interact",10,70,7)
  print("press 'x' to open menu",10,80,7)
 
  print("  press z to proceed",15,110,10)
@@ -613,6 +616,10 @@ function handleinputs_worldscreen()
    end
   end
   
+  if btnp(4) then
+  	world_select()
+  end
+  
   if btnp(5) then
   	gamestate = 2
   	sfx(15)
@@ -638,7 +645,23 @@ function handleinputs_worldscreen()
 
 end
 
+
+function world_select()
+selectnpc()
+end
 ----------- battle -----------   cls()
+
+
+function startbattle(enemyid)
+ battleselect = 1
+ if npcs[enemyid].battlestats.hp>0 then
+  gamestate = 3
+  enemy = setenemysprite(enemyid)
+ 	eid = enemyid
+ 	battlestats[2] = enemy.battlestats
+	end
+end
+
 function draw_battlescreen()
  cls()
  print("!!battle!!",50,10,7)
@@ -646,10 +669,15 @@ function draw_battlescreen()
 	draw_battlemenu()
 end
 
+
+function setenemysprite(e)
+ updatesprite(npcs[e])
+ return npcs[e]
+end
+
 function getenemysprite()
-e = flr(rnd(5))+1
-updatesprite(npcs[e])
-return npcs[e]
+ e = flr(rnd(5))+1
+ return setenemysprite(e)
 end
 
 function draw_battle_art()
@@ -757,6 +785,7 @@ function battleselectmenu()
   	if win then print ("you win!!",50,50,10)
  		wait(20)
  		   returntoworld()
+ 		   kill(eid)
  	end
  else
  	enemyturn()
@@ -775,10 +804,16 @@ return health*width
 end
 end
 
-function magic ()
- if enemyhealth[1] > 0.01
- then
-		enemyhealth[1] -=0.1
+function magic (idsource,iddest)
+	source = battlestats[idsource]
+	dest = battlestats[iddest]
+	damage =  source.magic * dest.defense
+	dest.hp -= damage
+    start_animation(magic_anim,iddest)
+	battleturn =  not battleturn
+	if dest.hp <0 then dest.hp = 0 
+	 return true 
+	else return false
 	end
 end
 
@@ -938,11 +973,8 @@ function init_mapelems()
  {67,120,7,"exit",4},
  {67,121,7,"exit",4}
  }
-
-
- 
- 
 end
+
 
 
 function draw_mapelems()
@@ -1135,6 +1167,14 @@ end
 function wait(a) for i = 1,a do flip() end end
 -->8
 
+function kill(id)
+ npcs[id].frames = {121,121,122,122}
+ if (not (npcs[id].name == "")) then
+ 	npcs[id].name = npcs[id].name.."(rip)"
+ end
+end
+
+
 function initnpcs()
  nr_of_npcs = 6 
  npcs ={}
@@ -1154,12 +1194,16 @@ function initnpcs()
   npcs[n].name = ""
   npcs[n].msgyoffset = 0
   npcs[n].msgxoffset = 0
-
+  npcs[n].battlestats = {}
+  
+ npcs[n].battlestats.attack = 5
+ npcs[n].battlestats.magic = 5
+ npcs[n].battlestats.defense = .75
+ npcs[n].battlestats.hp = 100
+ npcs[n].battlestats.mp = 100
  end
  
  for n=nr_of_npcs+1,nr_of_npcs+copycount do 
-
-  
   x = rnd(500)
   y = rnd(500)
   while  (isblocked(x,y)) do
@@ -1168,7 +1212,9 @@ function initnpcs()
   end
  	npcs[n].x = x
   npcs[n].y = y
-  npcs[n].msg = generatecansentences()
+  local txt = generatecansentences()
+  npcs[n].msg = txt[2]
+  npcs[n].name = txt[1]
 		npcs[n].msgyoffset = -10
 		npcs[n].msgxoffset = -20
  end
@@ -1194,7 +1240,7 @@ function initnpcs()
  npcs[2].x= 30*8
  npcs[2].y = 20*8
  npcs[2].name = "ogre"
- npcs[2].msg = npcs[2].name..": top o' the \nmornin' to ya"
+ npcs[2].msg = ": top o' the \nmornin' to ya"
  npcs[2].randommoves = false
  npcs[2].path={
  {30*8,20*8},
@@ -1210,7 +1256,6 @@ function initnpcs()
  }
  
  --lady outside castle belaroth
- 
  npcs[3].speed =1
  npcs[3].frames = {89,89,90,90}
  npcs[3].x= 57*8
@@ -1228,7 +1273,7 @@ function initnpcs()
  npcs[4].x= 33*8
  npcs[4].y= 19*8
  npcs[4].name = "clax"
- npcs[4].msg = npcs[4].name..": fight me!"
+ npcs[4].msg = ": fight me!"
  npcs[4].randommoves = false
  npcs[4].path={
  {33*8,19*8},
@@ -1275,17 +1320,15 @@ function drawnpcs()
  
  if (#intersecting >0) then 
  	for n=1, #intersecting do
- 	--	print (npcs[intersecting[n]].x+mapxoffset,0,10*n,10)
 
   	print (
-  	npcs[intersecting[n]].msg,
+  	npcs[intersecting[n]].name..npcs[intersecting[n]].msg,
   	npcs[intersecting[n]].x+mapxoffset
   	+npcs[intersecting[n]].msgxoffset,
   	npcs[intersecting[n]].y+mapyoffset
   	-10+npcs[intersecting[n]].msgyoffset,
   	10) 
- 			 --print("hey!!!",0,0,10)
- 	end
+ 		end
  end
  if world == "overworld" then
   intersecting = {}
@@ -1302,6 +1345,12 @@ function drawnpcs()
  end
 end
 
+function selectnpc()
+
+	if #intersecting >0 then
+ 	startbattle(intersecting[1])
+ end
+end
 
 function isplayerintersecting(spr_x,spr_y)
  intersect = false
@@ -1340,9 +1389,9 @@ function generatecansentences()
    noun = nouns[nounnum]
    verb = verbs[verbnum]
    life = flr(rnd(10000))
-   sentence = "can nr."..life..":\n".."i just "..verb.."\n"..noun
+   sentence = ":\n".."i just "..verb.."\n"..noun
    
-   return (sentence)
+   return {("can nr."..life),sentence}
  end
 
 
@@ -1489,14 +1538,14 @@ f1111104f11111f00010100000000000fff40000000c0000cc00ccc000dddd0000dddd0000111660
 1222222222222220662266552445542200000000000000000000000000555500005555000eeeeee0050000500000000000000000000000000000000000000000
 40220202920090205524556622251222000000000000000000000000005551100115550005000050000000000000000000000000000000000000000000000000
 90900909090000906622665524455244000000000000000000000000001100000000011000000000000000000000000000000000000000000000000000000000
-00000000424242422222222244244244000000000000000000000000000fff00000fff0000000000000000000000000000000000000000000000000000000000
-00011000424242424444444422444422000000000000000000000000000f5ff0000f5ff000000000000000000000000000000000000000000000000000000000
-00111100424244422112222242444424000000000000000000000000000fff00000fff0000000000000000000000000000000000000000000000000000000000
-0111111044424242411444444422224400000000000000000000000000ddddd00ddddd0000000000000000000000000000000000000000000000000000000000
-0111111042424242211222224424424400000000000000000000000000dfdd0ff0dddd0000000000000000000000000000000000000000000000000000000000
-05111150424442424444554442411424000000000000000000000000001111000011110000000000000000000000000000000000000000000000000000000000
-05511550424242422222512224111142000000000000000000000000001116600661110000000000000000000000000000000000000000000000000000000000
-05055050424242424444554444111144000000000000000000000000006600000000066000000000000000000000000000000000000000000000000081818181
+00000000424242422222222244244244000000000000000000000000000fff00000fff0000006600006666600000000000000000000000000000000000000000
+00011000424242424444444422444422000000000000000000000000000f5ff0000f5ff060067760067777700000000000000000000000000000000000000000
+00111100424244422112222242444424000000000000000000000000000fff00000fff0000675750067575700000000000000000000000000000000000000000
+0111111044424242411444444422224400000000000000000000000000ddddd00ddddd0006777760067777600000000000000000000000000000000000000000
+0111111042424242211222224424424400000000000000000000000000dfdd0ff0dddd0006755677606755600000000000000000000000000000000000000000
+05111150424442424444554442411424000000000000000000000000001111000011110006776600006766000000000000000000000000000000000000000000
+05511550424242422222512224111142000000000000000000000000001116600661110006760060066660000000000000000000000000000000000000000000
+05055050424242424444554444111144000000000000000000000000006600000000066066600000000000600000000000000000000000000000000081818181
 e1e1e1e1e1e1e1e0f04262d0e1e1f14262e32121c113131313131313131313132121212121212121212121a32161616161212121212121218181818181818181
 81818181818181818181818181818181818181818181818181818181818100000000000000000000000000005050505050500050505050005050505081818181
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f16221a3b3212121212121212121212121212121212121212121212121f361818161212121212161617181818181818181
