@@ -33,7 +33,7 @@ function _init()
  sentence  = ""
  menuid = 1
  selectid = 1
- townid = 1
+ levelid = 0
  
  menuscreen ={}
  
@@ -885,7 +885,7 @@ outside_cave = {34,18,35,18}
 nr_of_towns =8
 towns ={}
 
-nr_of_cavelevels =1
+nr_of_cavelevels =2
 towns ={}
 
 
@@ -925,6 +925,16 @@ cavelevels[1].floor =
 {121,24}
 }
 
+cavelevels[2] ={}
+cavelevels[2].floor =
+{
+{120,37},
+{121,37},
+{120,36},
+{121,36},
+{120,35},
+{121,35}
+}
 
 
 
@@ -932,14 +942,16 @@ function init_cavelems()
 
  for n=1,nr_of_cavelevels do 
   add(cavelevels,{})
-  cavelevels[n].nr_of_elems = 4
+  cavelevels[n].nr_of_elems = 6
 		cavelevels[n].elems ={}
 		cavelevels[n].elems = 
 		{
 		{67,120*8,38*8,"exit",1},
 		{67,121*8,38*8,"exit",1},
 		{67,120*8,39*8,"exit",1},
-		{67,121*8,39*8,"exit",1}	
+		{67,121*8,39*8,"exit",1},
+		{101,120*8,23*8,"cave",2},
+		{102,121*8,23*8,"cave",2}	
 		}
  end
 
@@ -1057,7 +1069,7 @@ end
 function draw_caveelems()
   if cavelevels[cavelevel]then
   for n=1,cavelevels[cavelevel].nr_of_elems do
-   elem = cavelevels[cavelevel].elems[n] 
+   local elem = cavelevels[cavelevel].elems[n] 
    drawsprite(elem[1],
    elem[2],
    elem[3])
@@ -1072,9 +1084,9 @@ function draw_mapelems()
  if not (world=="overworld") then
   if  (world=="cave") then
   	draw_caveelems()
-  elseif towns[townid] then
-   for n=1, towns[townid].nr_of_elems do
-    elem =towns[townid].elems[n] 
+  elseif towns[levelid] then
+   for n=1, towns[levelid].nr_of_elems do
+    elem =towns[levelid].elems[n] 
     drawsprite(elem[1],elem[2],
     elem[3],false)
    end
@@ -1086,27 +1098,27 @@ end
 function updatemapinteracts()
 if not (world=="overworld")
 and (world=="cave")  then
-  for n=1,cavelevels[cavelevel].nr_of_elems do
-   local elem = cavelevels[cavelevel].elems[n] 
+  for n=1,cavelevels[levelid].nr_of_elems do
+   local elem = cavelevels[levelid].elems[n] 
    if (isplayerintersecting
    (elem[2],elem[3]))
     then
    	 if  elem[4] and elem[5] then
-   	 townid = elem[5]
+   	 levelid = elem[5]
     	teleport(elem[4])
     	break
    	end
    end
   end
 elseif not (world=="overworld") then
-  for n=1,towns[townid].nr_of_elems do
-   local elem = towns[townid].elems[n] 
+  for n=1,towns[levelid].nr_of_elems do
+   local elem = towns[levelid].elems[n] 
    if (isplayerintersecting
    (elem[2],elem[3])
    )
     then
    	 if  elem[4] and elem[5] then
-   	 townid = elem[5]
+   	 levelid = elem[5]
     	teleport(elem[4])
     	break
    	end
@@ -1116,6 +1128,21 @@ elseif not (world=="overworld") then
 	end
 end
 
+
+function wipe(topbottom)
+ if topbottom then
+  for i=0, 10 do
+  	rectfill(0,130,250,130-i*15,0)
+  	wait(1)
+ 	end
+	else
+ 	 for i=0, 10 do
+  	rectfill(0,0,250,0+i*15,0)
+  	wait(1)
+ 	end
+ end
+
+end
 
 function teleport(location)
  oldx = can.x
@@ -1130,6 +1157,9 @@ function teleport(location)
  
  teleportworked = false
  if location == "exit" then
+   sfx(21)
+   wipe(false)
+   
   	loc = oldlocs[#oldlocs]
  		del(oldlocs,loc)
  		can.x = loc[1]
@@ -1143,11 +1173,17 @@ function teleport(location)
    celh  = loc[9]
    if world == "overworld" then
    	mapyoffset-=8
+   	levelid = 0
+   elseif world == "cave" then
+    	clearlevel()
+     loadlevel()
+     can.y+=8
    else
    can.y+=8
    end
  		
  elseif location =="tavern" then
+ 	wipe(true)
  	cellx = 116
  	celly = 10
  	sx = 25
@@ -1159,6 +1195,7 @@ function teleport(location)
  	can.y = 55
  	teleportworked = true
  elseif location =="town" then
+  	wipe(true)
  	cellx = 116
  	celly = 0
  	sx = 25
@@ -1172,6 +1209,7 @@ function teleport(location)
 
 
  elseif location =="cave" then
+  wipe(true)
  	cellx = 113
  	celly = 23
  	sx = 0
@@ -1182,6 +1220,7 @@ function teleport(location)
  	can.y = 109
  	world="cave"
  	clearlevel()
+ --	generatelevel()
  	loadlevel()
  	teleportworked = true
 	end
@@ -1228,28 +1267,28 @@ function processteleport()
   y+=celly*8 
  end
  if xywithin(x,y,outside_hoggsface) then
-  townid = 1
+  levelid = 1
   teleport("town")
  elseif xywithin(x,y,outside_capitol_city) then
-  townid = 3
+  levelid = 3
   teleport("town")
  elseif xywithin(x,y,outside_gratax) then
-  townid = 4
+  levelid = 4
   teleport("town")
  elseif xywithin(x,y,outside_meagas) then
-  townid = 5
+  levelid = 5
   teleport("town")
  elseif xywithin(x,y,outside_furlingshire) then
-  townid = 6
+  levelid = 6
   teleport("town")  
  elseif xywithin(x,y,outside_terrakis) then
-  townid = 7
+  levelid = 7
   teleport("town")   
  elseif xywithin(x,y,outside_jizzleknob) then
-  townid = 8
+  levelid = 8
   teleport("town")   
  elseif xywithin(x,y,outside_cave) then
-  caveid = 1
+  levelid = 1
   teleport("cave")
   
  end
@@ -1293,16 +1332,156 @@ function clearlevel()
 	end
 	mset(120,38, 18)
 	mset(121,38, 18)
+	mset(120,23, 18)
+	mset(121,23, 18)
 end
 
 
+function checkvalidpoint(point)
+ if point[1]>=112
+ and point[1]<=128
+ and point[2]>=23
+ and point[2]<=38 then
+ 	return true
+ else
+ 	return false
+end 
+end
+
 function generatelevel()
+ cavelevel+=1
+ cavelevels[cavelevel]={}
+ lvl=cavelevels[cavelevel]
+ lvl.floor = {}
+ lvl.nr_of_elems = 5
+ lvl.elems = {}
+ 
+ drawpoint = {flr(rnd(14))+113,38}
+	exit1 = {drawpoint[1],38}
+	exit2 = {1+drawpoint[1],38}
+	mset(exit1[1],exit1[2], 18)
+	mset(exit2[1],exit2[2], 18)
+ add(lvl.elems,
+ {67,
+ exit1[1]*8,
+ exit1[2]*8,
+ "exit",
+ 1})
+ add(lvl.elems,
+ {67,
+ exit2[1]*8,
+ exit2[2]*8,
+ "exit",
+ 1})
+
+-- mset(drawpoint[1],drawpoint[2], 100)
+-- mset(drawpoint[1]+1,drawpoint[2]-1, 100)
+
+for i=0,200 do
+ draw = flr(rnd(4))+1
+ 
+	if draw == 1 and
+	checkvalidpoint(
+	{ drawpoint[1]-1,
+	  drawpoint[2]
+	 }) then
+	--leftdraw
+	 drawpoint[1]-=1
+	 add(lvl.floor,
+	 {
+	 	drawpoint[1],
+	 	drawpoint[2]
+	 })
+	add(lvl.floor,
+	{
+	 	drawpoint[1],
+	 	drawpoint[2]-1
+	 })
+	
+	 --mset(drawpoint[1],drawpoint[2], 100)
+	elseif draw == 2  and
+	checkvalidpoint(
+	{ drawpoint[1]+1,
+	  drawpoint[2]
+	 }) then 
+	 --right draw
+	 drawpoint[1]+=1
+	 add(lvl.floor,
+	 {
+	 	drawpoint[1],
+	 	drawpoint[2]
+	 })
+	add(lvl.floor,
+	{
+	 	drawpoint[1],
+	 	drawpoint[2]-1
+	 })	 
+	 
+--	 mset(drawpoint[1],drawpoint[2], 100)
+ -- mset(drawpoint[1],drawpoint[2]-1, 100)
+ 
+	elseif draw == 3  and
+	checkvalidpoint(
+	{ drawpoint[1]+1,
+	  drawpoint[2]
+	 }) then
+	 --down draw
+	 drawpoint[2]+=1
+	 add(lvl.floor,
+	 {
+	 	drawpoint[1],
+	 	drawpoint[2]
+	 })
+	add(lvl.floor,
+	{
+	 	drawpoint[1]+1,
+	 	drawpoint[2]
+	 })
+	-- mset(drawpoint[1],drawpoint[2], 100)
+  --mset(drawpoint[1]+1,drawpoint[2], 100)
+
+	elseif checkvalidpoint(
+	{ drawpoint[1],
+	  drawpoint[2]-1
+	 }) then
+	 --up draw
+	 drawpoint[2]-=1
+	 add(lvl.floor,
+	 {
+	 	drawpoint[1],
+	 	drawpoint[2]
+	 })
+	add(lvl.floor,
+	{
+	 	drawpoint[1]+1,
+	 	drawpoint[2]
+	 })	 
+	end
+	
+		add(lvl.elems,
+	{ 101,
+	 	(drawpoint[1])*8,
+	  34*8,
+	 	nil,
+	 	0
+	 })	 
+	 	add(lvl.elems,
+	{ 102,
+	 	(drawpoint[1]+1)*8,
+	  34*8,
+	 	nil,
+	 	0
+	 })	 
+
+	 
+	
+end
 
 end
 
 function loadlevel ()
-	for i=1, #cavelevels[cavelevel].floor do
-		clevel = cavelevels[cavelevel].floor[i]		
+	for i=1, #cavelevels[levelid].floor do
+		clevel = cavelevels[levelid].floor[i]		
 		mset(clevel[1], clevel[2], 100 )
 	end
 end
@@ -1329,6 +1508,7 @@ function initnpcs()
   npcs[n].frames = {64,65,66}
   npcs[n].frameid = 1
   npcs[n].speed = 1
+  npcs[n].lvlid = 0
   npcs[n].x = 19*8
   npcs[n].y = 15*8
   npcs[n].randommoves = true
@@ -1423,6 +1603,7 @@ function initnpcs()
  npcs[4].world = "cave"
  npcs[4].level = 1
  npcs[4].name = "clax"
+ npcs[4].lvlid = 1
  npcs[4].msg = ": fight me!"
  npcs[4].msgxoffset-=20
  npcs[4].randommoves = false
@@ -1470,16 +1651,15 @@ function updatenpcs()
 end
 
 function drawnpcs()
- 
  if (#intersecting >0) then 
  	for n=1, #intersecting do
    talk(npcs[intersecting[n]])
-
  		end
  end
   intersecting = {}
   for n=1, #npcs do
-   if npcs[n].world == world then
+   if npcs[n].world == world and
+   (npcs[n].lvlid == levelid) then
   	drawsprite(npcs[n].frames[npcs[n].frameid],
   	npcs[n].x,
   	npcs[n].y,
@@ -1488,7 +1668,6 @@ function drawnpcs()
   		add(intersecting,n)
 		 end
  end
-
  end
 end
 
@@ -1714,14 +1893,14 @@ f999990409f99940f999990451515151000900000000000008080000007557707775770000111660
 011611f43333333050111105988888980fff400000c0c000cccc00c00d222200002222d0001f1100001111000dddd2400ddddd40000000000000000000000000
 f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd0000111660066111100d2ddd402ddddd04000000000000000000000000
 012121040771770005101500888888890f400000000000000cccc00000dd000000d00dd000660000000006600d5ddd000ddd5d04000000000000000000000000
-00000120000001105566556622442222f44444450000000000000000000222000002220000660000000000e04424424444244244000000000000000000000000
-000011520000112066556655222224424222222500000000000000000002522000025220006660e00e666e5e2244442222444422000000000000000000000000
-0000122210001252556611664112211242222225000000000000000000022200000222000ee66e5eee666eee4244442442444424000000000000000000000000
-1122220011222222665511552114411242222225000000000000000000ddddd00ddddd00eeeeeeeeeee66e004422224444222244000000000000000000000000
-1222222022222200556611662222224442222225000000000000000000d2dd0220dddd00eeeeee000eeeeee04424411111144244000000000000000000000000
-1222222222222220662266552445542242222225000000000000000000555500005555000eeeeee0050000504241111111111424000000000000000000000000
-40220202920090205524556622251222422222250000000000000000005551100115550005000050000000002411111111111142000000000000000000000000
-90900909090000906622665524455244455555510000000000000000001100000000011000000000000000004411111111111144000000000000000000000000
+00000120000001105566556622442222f44444452222222222222222000222000002220000660000000000e04424424444244244000000000000000000000000
+000011520000112066556655222224424222222521111111111111120002522000025220006660e00e666e5e2244442222444422000000000000000000000000
+0000122210001252556611664112211242222225211555555555511200022200000222000ee66e5eee666eee4244442442444424000000000000000000000000
+112222001122222266551155211441124222222521dddddddddddd1200ddddd00ddddd00eeeeeeeeeee66e004422224444222244000000000000000000000000
+122222202222220055661166222222444222222521dddddddddddd1200d2dd0220dddd00eeeeee000eeeeee04424411111144244000000000000000000000000
+1222222222222220662266552445542242222225266666666666666200555500005555000eeeeee0050000504241111111111424000000000000000000000000
+40220202920090205524556622251222422222252666666666666662005551100115550005000050000000002411111111111142000000000000000000000000
+90900909090000906622665524455244455555512666666666666662001100000000011000000000000000004411111111111144000000000000000000000000
 000000004242424222222222442442440000bb00000b000000000000000fff00000fff0000006600006666600000000000000000000000000000000000000000
 00011000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700000000000000000000000000000000000000000
 00111100424244422112222242444424b00bbb00000bbb000b000000000fff00000fff0000675750067575700000000000000000000000000000000000000000
@@ -1733,13 +1912,13 @@ f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd0000111660
 e1e1e1e1e1e1e1e0f04262d0e1e1f14262e32121c113131313131313131313132121212121212121212121a32161616161212121212121218181818181818181
 81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535353535353535353535
 35e1e1e1e1e1e1e1e1e1e1e1e1e1e1f16221a3b3212121212121212121212121212121212121212121212121f361818161212121212161617181818181818181
-81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535353535353535353535
+81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535355666353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1f201622121f32121d0e0e0e0e0e0e0f040602121212121212121212121215313028161616161616161708182828281818181
-81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535353535353535353535
+81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f1212121212102212121d2e1e1e1e1e101036221212121212121212121212121c3618181808080808080819161616171818181
-81818181818181818181818181818181818181818181818181818181818100000000000000000000000050500000000000353535353535353535353535353535
+81818181818181818181818181818181818181818181818181818181818100000000000000000000000050500000000000353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f121616161616161612121d1e1e1e1e1035262212121212121212121212121b321618181818181818181819161616171818181
-81818181818181818181818181818181818181818181818181818181818100000000000000000050505000000000000000353535353535353535353535353535
+81818181818181818181818181818181818181818181818181818181818100000000000000000050505000000000000000353535353535354646353535353535
 35e1e1e1e1e152e1e1e1e1e1e1f161617080808080616121d2e1e1e1e1f021022121212121212121212121b32121617282828282828281818180808081818181
 81818181818181818181818181818181818181818181818181818181818100000000000000500000000000000000000000464646464646464646464646464646
 35e1e1e1e1e1e1e1e1e1e1e1e1f16161718181818190612121212121d1f1212121212121212121212121b3212121616161616161616172828181818181818181
@@ -1850,6 +2029,9 @@ __sfx__
 000100001e650112501f6501f6501925016250162501a6501a6501a6502225022650226501a6501b6501b65014250282502d6502d6502d6502d6502c650102502b6502a6501d2500b2501b6501b6500c6500a650
 00010000107501075010750127501475016750197501d75021750257502a7502e7502e7502d7502a750297502675023750217501e7501b7501875016750157501475013750137501375013750137501375000000
 010300002305023050100501005023000180002300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000300002a6572a6572a6572a65720657206572065720657156571565715657000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011700000c615187230c6150c7530c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
+011900000c6150c6150c6000c7030c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
 __music__
 00 02034044
 01 04054344
