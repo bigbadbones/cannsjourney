@@ -505,7 +505,7 @@ end
 ----------- menu -----------
 function draw_menuscreen()
    cls()
-   print("--menu--",20,10,7)
+   print("--menu--",20,5,7)
    drawarrow(7,22+10*selectid,7)
    drawmenu(menuid)
    updatesprite(can)
@@ -664,6 +664,8 @@ end
 
 
 function startbattle(enemyid)
+ sfx(25)
+ circlewipe()
  battleturn = false
  battleselect = 1
  if npcs[enemyid].battlestats.hp>0 then
@@ -829,6 +831,7 @@ function battleselectmenu()
  and not animation_ongoing then
 	  win = false
   	if battleselect == 3 then
+  	  sfx(19)
   	  returntoworld()
    elseif battleselect ==1 then
    	win = attack(1,2)
@@ -898,10 +901,12 @@ end
 function handleinputs_battlescreen()
   
   if btnp(2) and battleselect!=1  then
+  	sfx(18)
   	battleselect-=1
   end
  
   if btnp(3) and 3>=battleselect+1 then
+   	sfx(18)
   	battleselect+=1
   end
   
@@ -1156,6 +1161,15 @@ function wipe(topbottom)
   	rectfill(0,0,250,0+i*15,0)
   	wait(1)
  	end
+ end
+
+end
+
+function circlewipe()
+ 	 for i=0, 10 do
+  	circfill(50,50,0+i*15,8)
+  	wait(1)
+
  end
 
 end
@@ -2007,6 +2021,7 @@ __sfx__
 011700000c655186530c6050c7030c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
 011000000c2560c253000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0105000024550241503c1500c1500c1000c1000c1000c1000c1000c1000c1000c1001e5001e5001e5000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010700000a2500b2500e250102501325016250192501e250222002c200312003c2003f2003f2003f2003f2003f200000000000000000000000000000000000000000000000000000000000000000000000000000
 __music__
 00 02034044
 01 04054344
