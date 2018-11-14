@@ -124,6 +124,7 @@ function _init()
  statuseffects = {}
  statuseffects.redpotion = false
  additem("ether")
+ additem("red potion")
 end
 
 
@@ -509,7 +510,12 @@ function draw_menuscreen()
    drawarrow(7,22+10*selectid,7)
    drawmenu(menuid)
    updatesprite(can)
+   pal()
+   if (statuseffects.redpotion==true) then
+  		pal(15,8)
+  	end
    spr(can.frames[can.frameid],10,10)
+			pal()
    drawhealthbars(false)
    print("press x to return",10,120,7)
 
@@ -591,10 +597,13 @@ function draw_worldscreen()
   drawmap()
  	drawnpcs() 
   draw_mapelems()
+  pal()
   if (statuseffects.redpotion==true) then
   	dorandommoves(can,true)
+  	pal(15,8)
   end
   spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
+  pal()
  end
 
 function handleinputs_worldscreen()
@@ -930,7 +939,7 @@ outside_terrakis = {22,29,23,29}
 outside_jizzleknob = {52,21,53,21}
 outside_cave = {34,18,35,18}
 
-
+blocking_interacts = {}
 
 
 nr_of_towns =8
@@ -967,12 +976,12 @@ function init_cavelems()
 		cavelevels[n].elems ={}
 		cavelevels[n].elems = 
 		{
-		{67,120*8,38*8,"exit",1},
-		{67,121*8,38*8,"exit",1},
-		{67,120*8,39*8,"exit",1},
-		{67,121*8,39*8,"exit",1},
-		{101,120*8,23*8,"cave",n+1},
-		{102,121*8,23*8,"cave",n+1}	
+		{67,120*8,38*8,"exit",1,false},
+		{67,121*8,38*8,"exit",1,false},
+		{67,120*8,39*8,"exit",1,false},
+		{67,121*8,39*8,"exit",1,false},
+		{101,120*8,23*8,"cave",n+1,false},
+		{102,121*8,23*8,"cave",n+1,false}	
 		}
  end
 
@@ -993,18 +1002,18 @@ init_cavelems()
  towns[1].nr_of_elems =4
  towns[1].elems=
  {
- {114,120*8,003*8,"tavern",2},
- {98,125*8,004*8,nil,nil},
- {67,120*8,7*8,"exit",1},
- {67,121*8,7*8,"exit",1}
+ {114,120*8,003*8,"tavern",2,false},
+ {98,125*8,004*8,nil,nil,false},
+ {67,120*8,7*8,"exit",1,false},
+ {67,121*8,7*8,"exit",1,false}
  }
  
  --tavern
  towns[2].nr_of_elems = 2
  towns[2].elems=
  {
- {67,121*8,15*8,"exit",1},
- {67,122*8,15*8,"exit",1}
+ {67,121*8,15*8,"exit",1,false},
+ {67,122*8,15*8,"exit",1,false}
  }
  
  
@@ -1013,39 +1022,39 @@ init_cavelems()
  towns[3].elems=
  {
  {98,118*8,2*8,nil,nil},
- {98,125*8,003*8,nil,nil},
- {98,126*8,005*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {20,121*8,1*8,nil,nil},
- {21,122*8,1*8,nil,nil},
- {67,120*8,7*8,"exit",3},
- {67,121*8,7*8,"exit",3}
+ {98,125*8,003*8,nil,nil,false},
+ {98,126*8,005*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {20,121*8,1*8,nil,nil,false},
+ {21,122*8,1*8,nil,nil,false},
+ {67,120*8,7*8,"exit",3,false},
+ {67,121*8,7*8,"exit",3,false}
  }
  
  --gratax
  towns[4].nr_of_elems =6
  towns[4].elems=
  {
- {98,118*8,2*8,nil,nil},
- {98,125*8,2*8,nil,nil},
- {98,129*8,005*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {67,120*8,7*8,"exit",4},
- {67,121*8,7*8,"exit",4}
+ {98,118*8,2*8,nil,nil,false},
+ {98,125*8,2*8,nil,nil,false},
+ {98,129*8,005*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {67,120*8,7*8,"exit",4,false},
+ {67,121*8,7*8,"exit",4,false}
  }
  
   --meagas
  towns[5].nr_of_elems =6
  towns[5].elems=
  {
- {98,118*8,2*8,nil,nil},
- {98,125*8,2*8,nil,nil},
- {98,129*8,005*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {67,120*8,7*8,"exit",4},
- {67,121*8,7*8,"exit",4}
+ {98,118*8,2*8,nil,nil,false},
+ {98,125*8,2*8,nil,nil,false},
+ {98,129*8,005*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {67,120*8,7*8,"exit",4,false},
+ {67,121*8,7*8,"exit",4,false}
  }
  
  
@@ -1054,34 +1063,34 @@ init_cavelems()
  towns[6].nr_of_elems =6
  towns[6].elems=
  {
- {98,118*8,2*8,nil,nil},
- {98,125*8,2*8,nil,nil},
- {98,129*8,005*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {67,120*8,7*8,"exit",4},
- {67,121*8,7*8,"exit",4}
+ {98,118*8,2*8,nil,nil,false},
+ {98,125*8,2*8,nil,nil,false},
+ {98,129*8,005*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {67,120*8,7*8,"exit",4,false},
+ {67,121*8,7*8,"exit",4,false}
  }
 --terrakis 
  towns[7].nr_of_elems =6
  towns[7].elems=
  {
- {98,118*8,2*8,nil,nil},
- {98,125*8,2*8,nil,nil},
- {98,129*8,005*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {67,120*8,7*8,"exit",4},
- {67,121*8,7*8,"exit",4}
+ {98,118*8,2*8,nil,nil,false},
+ {98,125*8,2*8,nil,nil,false},
+ {98,129*8,005*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {67,120*8,7*8,"exit",4,false},
+ {67,121*8,7*8,"exit",4,false}
  }
 --jizzleknob 
  towns[8].nr_of_elems =6
  towns[8].elems=
  {
- {98,118*8,2*8,nil,nil},
- {98,125*8,2*8,nil,nil},
- {98,129*8,005*8,nil,nil},
- {98,123*8,004*8,nil,nil},
- {67,120*8,7*8,"exit",4},
- {67,121*8,7*8,"exit",4}
+ {98,118*8,2*8,nil,nil,false},
+ {98,125*8,2*8,nil,nil,false},
+ {98,129*8,005*8,nil,nil,false},
+ {98,123*8,004*8,nil,nil,false},
+ {67,120*8,7*8,"exit",4,false},
+ {67,121*8,7*8,"exit",4,false}
  }
 end
 
@@ -1453,7 +1462,7 @@ end
 function additem(name)
  local back = copy(menuscreen[2].text[#menuscreen[2].text]) 
  del(menuscreen[2].text,menuscreen[2].text[#menuscreen[2].text])
- if name == "redpotion" then
+ if name == "red potion" then
   name ={name,-1, {true,2}}
   add(menuscreen[2].text,name)
   add(menuscreen[2].icons,123)
@@ -1773,8 +1782,8 @@ function dorandommoves(sprite,player)
 	 elseif player and world == "overworld" and
 	  not (isblocked(sprite.x+xmove-mapxoffset,sprite.y+ymove-mapyoffset)) then
 
-	 	sprite.x +=xmove
-	 	sprite.y +=ymove
+	 	sprite.x +=xmove/sprite.speed 
+	 	sprite.y +=ymove/sprite.speed 
 	 end
 end
 
@@ -1888,13 +1897,13 @@ f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd0000111660
 40220202920090205524556622251222422222252666666666666662005551100115550005000050000000002411111111111142000000000000000000000000
 90900909090000906622665524455244455555512666666666666662001100000000011000000000000000004411111111111144000000000000000000000000
 000000004242424222222222442442440000bb00000b000000000000000fff00000fff0000006600006666600000000000000000000000000000000000000000
-00011000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700004400000044000000000000000000000000000
-00111100424244422112222242444424b00bbb00000bbb000b000000000fff00000fff0000675750067575700064460000644600000000000000000000000000
-0111111044424242411444444422224400bbbbb0000bbbb00000000000ddddd00ddddd0006777760067777600688886006cccc60000000000000000000000000
-0111111042424242211222224424424400bbbbb0000bbbb00b0000b000dfdd0ff0dddd0006755677606755600688786006cc7c60000000000000000000000000
-05111150424442424444554442411424003b3b3000bbbb3000000000001111000011110006776600006766000687886006c7cc60000000000000000000000000
-0551155042424242222251222411114200003000003bbb30000b0000001116600661110006760060066660000688886006cccc60000000000000000000000000
-05055050424242424444554444111144000000000003330000000000006600000000066066600000000000600066660000666600000000000000000081818181
+00011000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700004400000044000000440000000000000000000
+00111100424244422112222242444424b00bbb00000bbb000b000000000fff00000fff0000675750067575700064460000644600006446000000000000000000
+0111111044424242411444444422224400bbbbb0000bbbb00000000000ddddd00ddddd0006777760067777600688886006cccc6006bbbb600000000000000000
+0111111042424242211222224424424400bbbbb0000bbbb00b0000b000dfdd0ff0dddd0006755677606755600688786006cc7c6006bb7b600000000000000000
+05111150424442424444554442411424003b3b3000bbbb3000000000001111000011110006776600006766000687886006c7cc6006b7bb600000000000000000
+0551155042424242222251222411114200003000003bbb30000b0000001116600661110006760060066660000688886006cccc6006bbbb600000000000000000
+05055050424242424444554444111144000000000003330000000000006600000000066066600000000000600066660000666600006666000000000081818181
 e1e1e1e1e1e1e1e0f04262d0e1e1f14262e32121c113131313131313131313132121212121212121212121a32161616161212121212121218181818181818181
 81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535353535353535353535
 35e1e1e1e1e1e1e1e1e1e1e1e1e1e1f16221a3b3212121212121212121212121212121212121212121212121f361818161212121212161617181818181818181
