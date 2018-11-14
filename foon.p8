@@ -33,7 +33,7 @@ function _init()
  sentence  = ""
  menuid = 1
  selectid = 1
- levelid = 1
+ levelid = 0
  
  menuscreen ={}
  
@@ -51,7 +51,7 @@ function _init()
  menuscreen[2].text =
  {
  {"lunar sword",0},
- {"deed to usidore's hat",0},
+ {"deed to usidore's hat",0}, 
  {"back",1}
  }
  menuscreen[2].icons =
@@ -61,12 +61,15 @@ function _init()
  }
  
  
+ 
+ 
  menuscreen[3] = {}
  menuscreen[3].len = 3
  menuscreen[3].icons ={}
  menuscreen[3].text =
  {
- {"map names ",-1,{false,1},{true,0}},
+ {"map names ",-1,{false,1},
+ {true,0}},
  {"back",1}
  }
 
@@ -117,6 +120,10 @@ function _init()
  inittext()
  initnpcs()
  init_mapelems()
+ 
+ statuseffects = {}
+ statuseffects.redpotion = false
+ additem("ether")
 end
 
 
@@ -125,6 +132,8 @@ function perform_referenced_functions(id)
  	return togglemap()
  elseif id == 1 then 
  	return getmapstate()
+ elseif id == 2 then 
+ 	return useitem()
  end
 end
  
@@ -496,11 +505,12 @@ end
 ----------- menu -----------
 function draw_menuscreen()
    cls()
-   print("--menu--",50,10,7)
+   print("--menu--",20,10,7)
    drawarrow(7,22+10*selectid,7)
    drawmenu(menuid)
    updatesprite(can)
    spr(can.frames[can.frameid],10,10)
+   drawhealthbars(false)
    print("press x to return",10,120,7)
 
 end
@@ -521,6 +531,7 @@ function drawmenu(menuid)
   			print(item[1],10,20+10*m,10)
   		 if item[2] == -1 then
    		 for  i=3,  #item do
+   		 --i[1]=on select (vs menu load)
    		  if item[i][1] == false then
    		  		print (perform_referenced_functions(item[i][2]),60,20+10*m,10)
  						end
@@ -580,6 +591,9 @@ function draw_worldscreen()
   drawmap()
  	drawnpcs() 
   draw_mapelems()
+  if (statuseffects.redpotion==true) then
+  	dorandommoves(can,true)
+  end
   spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
  end
 
@@ -629,7 +643,7 @@ function handleinputs_worldscreen()
   	can.x -=xadjust
   	can.y -=yadjust
   end
-  
+
   teleportflags = getmapflags(can,0,0)
   if bor(teleportflags,0x6) then
    if not (band(teleportflags,0x4)==0) then
@@ -679,7 +693,7 @@ function getenemysprite()
 end
 
 function draw_battle_art()
- drawhealthbars()
+ drawhealthbars(true)
 
 
  updatesprite(can)
@@ -699,7 +713,8 @@ function draw_battle_art()
 end
 
 
-function drawhealthbars()
+function drawhealthbars(inbattle)
+if inbattle then
  local xoff = 0
  local yoff = 50
  local barwidth = 50
@@ -759,8 +774,39 @@ function drawhealthbars()
  xoff + barwidth+enemyspace,
  yoff + hpmpspace+ barheight,
  1) 
+ else
+  local xoff = 60
+  local yoff = 10
+  local barwidth = 50
+  local barheight = 5
+  local enemyspace = 75
+  local hpmpspace = 8
+  print ("hp:",xoff,yoff,8)
+  rectfill(xoff+12,
+  yoff,
+  xoff+ 12 +battlestats[1].hp/2,
+  yoff+barheight,8)
+  rect(xoff+12,
+  yoff,
+  xoff+12+barwidth,
+  yoff+barheight,2)
+  
+  print ("mp:",
+  xoff,
+  yoff+hpmpspace,
+  12)
+  rectfill(xoff+12,
+  yoff + hpmpspace,
+  xoff+12 +battlestats[1].mp/2,
+  yoff + hpmpspace+ barheight,
+  12)
+  rect(xoff+12,
+  yoff + hpmpspace,
+  xoff+12 +barwidth,
+  yoff + hpmpspace+ barheight,
+  1)
  end
- 
+end
 function checkmp(id)
 
 if battlestats[id].mp > 0 then
@@ -895,93 +941,17 @@ cavelevels ={}
 cavelevels[1] ={}
 cavelevels[1].floor =
 {
-{120,37},
-{121,37},
-{120,36},
-{121,36},
-{120,35},
-{121,35},
-{120,34},
-{121,34},
-{120,33},
-{121,33},
-{120,32},
-{121,32},
-{120,31},
-{121,31},
-{120,30},
-{121,30},
-{120,29},
-{121,29},
-{120,28},
-{121,28},
-{120,27},
-{121,27},
-{120,26},
-{121,26},
-{120,25},
-{121,25},
-{120,24},
-{121,24}
+{ {120,37},{121,37},'u',13}
 }
-
 cavelevels[2] ={}
 cavelevels[2].floor =
 {
-{120,37},
-{121,37},
-{120,36},
-{121,36},
-{120,35},
-{121,35},
-{120,34},
-{121,34},
-
---right turn
-{122,34},
-{122,35},
-{123,34},
-{123,35},
-{124,34},
-{124,35},
-{125,34},
-{125,35},
-{126,34},
-{126,35},
-{126,33},
-{125,33},
-{126,32},
-{125,32},
-{126,31},
-{125,31},
-{126,30},
-{125,30},
-{124,30},
-{124,31},
-{123,30},
-{123,31},
-{122,30},
-{122,31},
-{121,30},
-{121,31},
-{120,30},
-{120,31},
-
-{120,29},
-{121,29},
-{120,28},
-{121,28},
-{120,27},
-{121,27},
-{120,26},
-{121,26},
-{120,25},
-{121,25},
-
-
+{ {120,37},{121,37},'u',4},
+{ {120,33},{120,34},'l',4},
+{ {116,34},{115,34},'u',4},
+{ {115,30},{115,29},'r',4},
+{ {120,30},{121,30},'u',5},
 }
-
-
 
 
 function init_cavelems()
@@ -1371,7 +1341,15 @@ function drawmap()
  
 end
 -->8
-
+function copy(obj, seen)
+  if type(obj) ~= 'table' then return obj end
+  if seen and seen[obj] then return seen[obj] end
+  local s = seen or {}
+  local res = setmetatable({}, getmetatable(obj))
+  s[obj] = res
+  for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
+  return res
+end
 
 function clearlevel()
 	for x=113,127 do
@@ -1397,146 +1375,85 @@ function checkvalidpoint(point)
 end 
 end
 
-function generatelevel()
- cavelevel+=1
- cavelevels[cavelevel]={}
- lvl=cavelevels[cavelevel]
- lvl.floor = {}
- lvl.nr_of_elems = 5
- lvl.elems = {}
- 
- drawpoint = {flr(rnd(14))+113,38}
-	exit1 = {drawpoint[1],38}
-	exit2 = {1+drawpoint[1],38}
-	mset(exit1[1],exit1[2], 18)
-	mset(exit2[1],exit2[2], 18)
- add(lvl.elems,
- {67,
- exit1[1]*8,
- exit1[2]*8,
- "exit",
- 1})
- add(lvl.elems,
- {67,
- exit2[1]*8,
- exit2[2]*8,
- "exit",
- 1})
-
--- mset(drawpoint[1],drawpoint[2], 100)
--- mset(drawpoint[1]+1,drawpoint[2]-1, 100)
-
-for i=0,200 do
- draw = flr(rnd(4))+1
- 
-	if draw == 1 and
-	checkvalidpoint(
-	{ drawpoint[1]-1,
-	  drawpoint[2]
-	 }) then
-	--leftdraw
-	 drawpoint[1]-=1
-	 add(lvl.floor,
-	 {
-	 	drawpoint[1],
-	 	drawpoint[2]
-	 })
-	add(lvl.floor,
-	{
-	 	drawpoint[1],
-	 	drawpoint[2]-1
-	 })
-	
-	 --mset(drawpoint[1],drawpoint[2], 100)
-	elseif draw == 2  and
-	checkvalidpoint(
-	{ drawpoint[1]+1,
-	  drawpoint[2]
-	 }) then 
-	 --right draw
-	 drawpoint[1]+=1
-	 add(lvl.floor,
-	 {
-	 	drawpoint[1],
-	 	drawpoint[2]
-	 })
-	add(lvl.floor,
-	{
-	 	drawpoint[1],
-	 	drawpoint[2]-1
-	 })	 
-	 
---	 mset(drawpoint[1],drawpoint[2], 100)
- -- mset(drawpoint[1],drawpoint[2]-1, 100)
- 
-	elseif draw == 3  and
-	checkvalidpoint(
-	{ drawpoint[1]+1,
-	  drawpoint[2]
-	 }) then
-	 --down draw
-	 drawpoint[2]+=1
-	 add(lvl.floor,
-	 {
-	 	drawpoint[1],
-	 	drawpoint[2]
-	 })
-	add(lvl.floor,
-	{
-	 	drawpoint[1]+1,
-	 	drawpoint[2]
-	 })
-	-- mset(drawpoint[1],drawpoint[2], 100)
-  --mset(drawpoint[1]+1,drawpoint[2], 100)
-
-	elseif checkvalidpoint(
-	{ drawpoint[1],
-	  drawpoint[2]-1
-	 }) then
-	 --up draw
-	 drawpoint[2]-=1
-	 add(lvl.floor,
-	 {
-	 	drawpoint[1],
-	 	drawpoint[2]
-	 })
-	add(lvl.floor,
-	{
-	 	drawpoint[1]+1,
-	 	drawpoint[2]
-	 })	 
-	end
-	
-		add(lvl.elems,
-	{ 101,
-	 	(drawpoint[1])*8,
-	  34*8,
-	 	nil,
-	 	0
-	 })	 
-	 	add(lvl.elems,
-	{ 102,
-	 	(drawpoint[1]+1)*8,
-	  34*8,
-	 	nil,
-	 	0
-	 })	 
-
-	 
-	
-end
-
-end
 
 function loadlevel ()
 	for i=1, #cavelevels[levelid].floor do
 		clevel = cavelevels[levelid].floor[i]		
-		mset(clevel[1], clevel[2], 100 )
-	end
+		local f1 = copy(clevel[1])
+		local f2 = copy(clevel[2])
+		mset(f1[1], f1[2], 100 )
+		mset(f2[1], f2[2], 100 )
+		direction = clevel[3]
+		reps = clevel[4]
+		for i=1,reps do
+		if direction == "r" then
+ 	 	f1[1]+=1
+ 	 	f2[1]+=1
+ 	elseif direction == "l" then
+ 	 	f1[1]-=1
+ 	 	f2[1]-=1
+ 		elseif direction == "u" then
+ 	  f1[2]-=1
+ 	 	f2[2]-=1 		
+ 		elseif direction == "d" then
+   	f1[2]+=1
+ 		 f2[2]+=1 		
+		end	
+		mset(f1[1], f1[2], 100 )
+		mset(f2[1], f2[2], 100 )
+		
+		end
+		end
 end
 
 
 -->8
+function useitem()
+local item = 
+	menuscreen[2].text[selectid]
+ 
+ if item[1] == "red potion" then
+  sfx(18)
+  dropitem(selectid)
+  statuseffects.redpotion = true
+  can.speed*=1.5
+ elseif item[1] == "ether" then
+  if battlestats[1].mp>=100 then
+   sfx(23)
+  else
+   battlestats[1].mp+=10
+   sfx(24)
+   dropitem(selectid)
+  end
+ end
+end
+
+function dropitem(id)
+  del(menuscreen[2].text,
+  menuscreen[2].text[id])
+  del(menuscreen[2].icons,
+  menuscreen[2].icons[id])
+  menuscreen[2].len-=1
+end
+
+function additem(name)
+ local back = copy(menuscreen[2].text[#menuscreen[2].text]) 
+ del(menuscreen[2].text,menuscreen[2].text[#menuscreen[2].text])
+ if name == "redpotion" then
+  name ={name,-1, {true,2}}
+  add(menuscreen[2].text,name)
+  add(menuscreen[2].icons,123)
+  menuscreen[2].len+=1
+ elseif name == "ether" then
+  name ={name,-1, {true,2}}
+  add(menuscreen[2].text,name)
+  add(menuscreen[2].icons,124)
+  menuscreen[2].len+=1
+ end
+ add(menuscreen[2].text,back)
+
+end
+
 
 -->8
 
@@ -1815,7 +1732,7 @@ function movesprite(sprite)
  end
 end
 
-function dorandommoves(sprite)
+function dorandommoves(sprite,player)
  x = rnd(7)
  y = rnd(7)
   
@@ -1836,6 +1753,12 @@ function dorandommoves(sprite)
   end
 
 	 if not (isblocked(sprite.x+xmove,sprite.y+ymove)) then
+	 	sprite.x +=xmove
+	 	sprite.y +=ymove
+	 	
+	 elseif player and world == "overworld" and
+	  not (isblocked(sprite.x+xmove-mapxoffset,sprite.y+ymove-mapyoffset)) then
+
 	 	sprite.x +=xmove
 	 	sprite.y +=ymove
 	 end
@@ -1951,13 +1874,13 @@ f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd0000111660
 40220202920090205524556622251222422222252666666666666662005551100115550005000050000000002411111111111142000000000000000000000000
 90900909090000906622665524455244455555512666666666666662001100000000011000000000000000004411111111111144000000000000000000000000
 000000004242424222222222442442440000bb00000b000000000000000fff00000fff0000006600006666600000000000000000000000000000000000000000
-00011000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700000000000000000000000000000000000000000
-00111100424244422112222242444424b00bbb00000bbb000b000000000fff00000fff0000675750067575700000000000000000000000000000000000000000
-0111111044424242411444444422224400bbbbb0000bbbb00000000000ddddd00ddddd0006777760067777600000000000000000000000000000000000000000
-0111111042424242211222224424424400bbbbb0000bbbb00b0000b000dfdd0ff0dddd0006755677606755600000000000000000000000000000000000000000
-05111150424442424444554442411424003b3b3000bbbb3000000000001111000011110006776600006766000000000000000000000000000000000000000000
-0551155042424242222251222411114200003000003bbb30000b0000001116600661110006760060066660000000000000000000000000000000000000000000
-05055050424242424444554444111144000000000003330000000000006600000000066066600000000000600000000000000000000000000000000081818181
+00011000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700004400000044000000000000000000000000000
+00111100424244422112222242444424b00bbb00000bbb000b000000000fff00000fff0000675750067575700064460000644600000000000000000000000000
+0111111044424242411444444422224400bbbbb0000bbbb00000000000ddddd00ddddd0006777760067777600688886006cccc60000000000000000000000000
+0111111042424242211222224424424400bbbbb0000bbbb00b0000b000dfdd0ff0dddd0006755677606755600688786006cc7c60000000000000000000000000
+05111150424442424444554442411424003b3b3000bbbb3000000000001111000011110006776600006766000687886006c7cc60000000000000000000000000
+0551155042424242222251222411114200003000003bbb30000b0000001116600661110006760060066660000688886006cccc60000000000000000000000000
+05055050424242424444554444111144000000000003330000000000006600000000066066600000000000600066660000666600000000000000000081818181
 e1e1e1e1e1e1e1e0f04262d0e1e1f14262e32121c113131313131313131313132121212121212121212121a32161616161212121212121218181818181818181
 81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535353535353535353535
 35e1e1e1e1e1e1e1e1e1e1e1e1e1e1f16221a3b3212121212121212121212121212121212121212121212121f361818161212121212161617181818181818181
@@ -2080,8 +2003,10 @@ __sfx__
 010300002305023050100501005023000180002300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000300002a6572a6572a6572a65720657206572065720657156571565715657000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011700000c615187230c6150c7530c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
-01190000186150c6150c6000c7030c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
-011700000c615186130c6050c7030c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
+01190000186550c6550c6000c7030c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
+011700000c655186530c6050c7030c7030c7001d3000000010300103000c6031870310300000000000000000000000000010300000000c7030c60500000000000000000000000000000000000000000000000000
+011000000c2560c253000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0105000024550241503c1500c1500c1000c1000c1000c1000c1000c1000c1000c1001e5001e5001e5000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __music__
 00 02034044
 01 04054344
