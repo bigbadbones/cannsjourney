@@ -1692,8 +1692,8 @@ function isplayerintersecting(spr_x,spr_y)
  else
   x_s1 = can.x
   y_s1 = can.y
-  y_s2 =(spr_y/8-celly) *8+sx 
-  x_s2 =(spr_x/8-cellx) *8+sy
+  y_s2 =(spr_y/8-celly) *8+sx+4 
+  x_s2 =(spr_x/8-cellx) *8+sy+4
  end
 
 
