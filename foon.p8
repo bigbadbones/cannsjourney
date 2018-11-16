@@ -122,7 +122,7 @@ function _init()
  init_mapelems()
  
  statuseffects = {}
- statuseffects.redpotion = false
+ statuseffects.redpotion = {false,0}
  additem("ether")
  additem("red potion")
 end
@@ -345,7 +345,7 @@ function inittext()
  "a thousand bees", 
  "the pyramid of confusion",
  "a harpie",
- "the hottest shark \nhe's ever seen",
+ "the hottest shark \ni've ever seen",
  "otak barleyfoot",
  "tomblain belaroth",
  "the dark lord",
@@ -380,7 +380,8 @@ function inittext()
 end
 
 -->8
-
+menu_bounce_start = 5
+menu_bounce_direction = 1
 canhealth = {1,1}
 enemyhealth ={1,1}
 battleselect = 1
@@ -489,14 +490,18 @@ end
 function draw_titlescreen()
  version = 0.5
  cls()
+ 
  print("version: "..version,5,5,10)
  print("   welcome to can's quest\n - a journey thorugh foon - ",10,30,10)
  print("controls:",10,60,7)
  print("press 'z' to interact",10,70,7)
  print("press 'x' to open menu",10,80,7)
 
- print("  press z to proceed",15,110,10)
-
+ print("  press z to proceed",
+ menu_bounce_start-6,
+ 110,10)
+ bounceupdate()
+ 
 end
 
 
@@ -515,14 +520,17 @@ function draw_menuscreen()
    drawmenu(menuid)
    updatesprite(can)
    pal()
-   if (statuseffects.redpotion==true) then
+   if (statuseffects.redpotion[1]==true) then
   		pal(15,8)
   	end
    spr(can.frames[can.frameid],10,10)
 			pal()
    drawhealthbars(false)
-   print("press x to return",10,120,7)
-
+   print("press x to return",
+   menu_bounce_start,
+   120,
+   7)
+bounceupdate()
 end
 
 function drawarrow(x,y,col)
@@ -531,6 +539,29 @@ function drawarrow(x,y,col)
  line( x, y, x-2, y-2, col )
 end
 
+function restore_status(st)
+ 
+	if st == "redpotion" then
+	 statuseffects.redpotion[1] = false
+ 	if world == "overworld" then
+ 	can.x = 50
+ 	can.y = 50
+ 	can.speed = 1
+ 	end
+ end
+end
+
+function draw_redpotion()
+ local duration = time()-10 - statuseffects.redpotion[2]
+ if duration>=0 then
+   restore_status("redpotion")
+ 
+ else
+     spr(123,0,0)
+ 	   print(flr(duration*-1),10,3,10)
+ end
+
+end
 
 
 function drawmenu(menuid)
@@ -595,6 +626,7 @@ function handleinputs_menuscreen()
 end
 ----------- dialogue --------
 
+
 function draw_dialogue()
 
  rectfill(0,90,127,127,7)
@@ -604,11 +636,19 @@ function draw_dialogue()
  print(dialogue,20,95,0)
 
 	print ("press z to return",
-	50,120,6)
+	menu_bounce_start,120,6)
+	
+	bounceupdate()
 
+	end
+
+function bounceupdate()
+	menu_bounce_start+=menu_bounce_direction
+
+	if menu_bounce_start>=55 or menu_bounce_start<=5 then
+	 menu_bounce_direction *=-1
+	end
 end
-
-
 function handleinputs_dialogue()
   if btnp(4) then 
     returntoworld()
@@ -622,9 +662,11 @@ function draw_worldscreen()
  	drawnpcs() 
   draw_mapelems()
   pal()
-  if (statuseffects.redpotion==true) then
+  
+  if (statuseffects.redpotion[1]==true) then
   	dorandommoves(can,true)
   	pal(15,8)
+  	draw_redpotion()
   end
   spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
   pal()
@@ -1462,7 +1504,8 @@ local item =
  if item[1] == "red potion" then
   sfx(18)
   dropitem(selectid)
-  statuseffects.redpotion = true
+  statuseffects.redpotion[1] = true
+  statuseffects.redpotion[2] = time()
   can.speed*=1.5
  elseif item[1] == "ether" then
   if battlestats[1].mp>=100 then
@@ -1697,7 +1740,7 @@ end
 function interact(n)
 if world == "overworld" then
    if n.interact == "talk" and
-   (statuseffects.redpotion == false
+   (statuseffects.redpotion[1] == false
    or n.alive == false)
    then
    spr (109,
@@ -1737,7 +1780,7 @@ function selectnpc()
 	if #intersecting >0 then
  	local n = npcs[intersecting[1]]
  	if (n.interact == "battle") or
- 	(statuseffects.redpotion == true 
+ 	(statuseffects.redpotion[1] == true 
   and n.alive == true) 	
  	then
  	 startbattle(intersecting[1])
@@ -1846,10 +1889,10 @@ function dorandommoves(sprite,player)
 	 	sprite.x +=xmove/sprite.speed 
 	 	sprite.y +=ymove/sprite.speed 
 	 	
-	 	if sprite.x>60 then sprite.x=60
-	 	elseif sprite.x<40 then sprite.x=40 end
-	 	if sprite.y>60 then sprite.y=60
-	 	elseif sprite.y<40 then sprite.y=40 end
+	 	if sprite.x>55 then sprite.x=55
+	 	elseif sprite.x<45 then sprite.x=45 end
+	 	if sprite.y>55 then sprite.y=55
+	 	elseif sprite.y<45 then sprite.y=45 end
 	 	
 	 end
 end
