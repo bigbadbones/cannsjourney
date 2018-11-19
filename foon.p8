@@ -82,9 +82,9 @@ function _init()
  menuscreen[4].len = 3
  menuscreen[4].text = 
  {
- {"red potion [5g] ",-1,{true,3,5}},
- {"ether [5g]",-1,{true,3,5}},
- {"health potion [5g] ",-1,{true,3,5}},
+ {"red potion",-1,{false,5,5},{true,3,5}},
+ {"ether",-1,{false,5,5},{true,3,5}},
+ {"health potion",-1,{false,5,5},{true,3,5}},
  }
  menuscreen[4].icons = {
  123,
@@ -159,7 +159,9 @@ function _init()
  statuseffects = {}
  statuseffects.redpotion = {false,0}
  additem("ether")
+  additem("ether")
  additem("red potion")
+  additem("red potion")
 end
 
 
@@ -172,15 +174,29 @@ function perform_referenced_functions(id,extra)
  	return useitem()
  elseif id == 3 then 
  	return buy(extra)
- elseif id == 3 then 
- 	return getprice()
+ elseif id == 4 then 
+ 	return amount(extra)
+ elseif id == 5 then 
+ 	return price(extra)
  end
+end
+
+function amount(nr)
+	return (" x"..nr)
+	
+end
+
+function price(amount)
+	return ("["..amount.."g]")
+	
 end
 
 function buy(price)
  if money >= price then
+  additem(menuscreen[menuid].text[selectid][1])
   sfx(28)
   money -=price
+ -- additem(menuselect)
  else
 		sfx(23)
 	end
@@ -633,7 +649,11 @@ function drawmenu(menuid)
    		 for  i=3,  #item do
    		 --i[1]=on select (vs menu load)
    		  if item[i][1] == false then
-   		  		print (perform_referenced_functions(item[i][2]),60,20+10*m,10)
+   		    local extra = nil
+         if item[i][3] != nil then
+         	extra = item[i][3]
+         end
+   		  		print (perform_referenced_functions(item[i][2],extra),64,20+10*m,8)
  						end
  					end
    		end
@@ -1606,34 +1626,91 @@ local item =
    sfx(23)
   else
    battlestats[1].mp+=10
+   if battlestats[1].mp > 100 then
+   battlestats[1].mp = 100
+   end
    sfx(24)
+   dropitem(selectid)
+  end
+ elseif item[1] == "health potion" then
+  if battlestats[1].hp>=100 then
+   sfx(23)
+  else
+   battlestats[1].hp+=10
+   sfx(24)
+   if battlestats[1].hp > 100 then
+  	 battlestats[1].hp = 100
+   end
    dropitem(selectid)
   end
  end
 end
 
 function dropitem(id)
-  del(menuscreen[2].text,
-  menuscreen[2].text[id])
-  del(menuscreen[2].icons,
-  menuscreen[2].icons[id])
-  menuscreen[2].len-=1
+  if menuscreen[2].text[id][4][3] <=1 then
+   del(menuscreen[2].text,
+   menuscreen[2].text[id])
+   del(menuscreen[2].icons,
+   menuscreen[2].icons[id])
+   menuscreen[2].len-=1
+  else
+  menuscreen[2].text[id][4][3]-=1
+  end
+end
+
+function iteminmenu(item)
+	for i=1, #menuscreen[2].text do
+	 if menuscreen[2].text[i][1] == item then
+	 	return true
+  end
+  
+	end
+	return false
+
+end
+
+function geticon(name)
+ icon = 1
+ if name == "red potion" then
+  icon= 123
+ elseif name == "ether" then
+  icon=124
+ elseif name == "health potion" then
+  icon=125
+ end
+ return icon
 end
 
 function additem(name)
  local back = copy(menuscreen[2].text[#menuscreen[2].text]) 
  del(menuscreen[2].text,menuscreen[2].text[#menuscreen[2].text])
- if name == "red potion" then
-  name ={name,-1, {true,2}}
-  add(menuscreen[2].text,name)
-  add(menuscreen[2].icons,123)
-  menuscreen[2].len+=1
- elseif name == "ether" then
-  name ={name,-1, {true,2}}
-  add(menuscreen[2].text,name)
-  add(menuscreen[2].icons,124)
-  menuscreen[2].len+=1
- end
+
+	for i=1, #menuscreen[2].text do
+	 if menuscreen[2].text[i][1] == name then
+   menuscreen[2].text[i][4][3]+=1
+   
+   add(menuscreen[2].text,back)
+			
+			return 
+  end 		
+	
+	end
+
+ --if it is here, the 
+ --item is not in inventory
+ icon = geticon(name)
+ name ={
+ name,
+ -1,
+ {true,2},
+ {false,4,1} 
+ }
+ add(menuscreen[2].text,name)
+ add(menuscreen[2].icons,icon)
+ menuscreen[2].len+=1
+
+ 
+ 
  add(menuscreen[2].text,back)
 
 end
