@@ -9,13 +9,10 @@ function getmapstate()
  end
 end
 
-
-
 function togglemap()
  mapnames_enabled = not mapnames_enabled
  return ""	 
 end
-
 
 function _init()
  money = 100
@@ -91,58 +88,8 @@ function _init()
  124,
  125}
  
- 
- 
- shopscreen ={}
- 
- shopscreen[1] = {}
- shopscreen[1].len = 3
- shopscreen[1].text = 
- {
- {"red potion ",-1,{false,1},{true,0}},
- {"ether ",-1,{false,1},{true,0}},
- {"health potion ",-1,{false,1},{true,0}},
- }
- shopscreen[1].icons = {
- 123,
- 124,
- 125}
- 
- 
- 
- 
  music(1)
- canmemory ={}
  oldlocs = {}
-	currtime = time()
-	
-	updatetime = 0
-	stringlist={}
-	drawtext = false
-	stringstodraw={
-	{"hogsface",{36*8,20*8}},	
-	{"capitol\ncity",{39*8,26*8}},
-	{"meagas",{45*8,33*8}},
-	{"jizzleknob\nprep",{51*8,19*8}},
-	{"erik's\nisland",{57*8,35*8}},
-	{"the\nbig\napple",{47*8,18*8}},
-	{"castle\nbelaroth",{62*8,24*8}},
- {"woods of\nholly",{41*8,41*8}},
- {"fingarian glacier",{46*8,12*8}},
- {"scrr",{18*8,34*8}},
- {"mountains of\nits'ak",{21*8,15*8}},
- {"gunder",{33*8,14*8}},
- {"mcshingleshane\nforest",{30*8,25*8}},
- {"shrike\nvalley",{40*8,22*8}},
- {"furlingshire",{30*8,38*8}},
- {"terenth",{56*8,28*8}},
- {"gratax",{42*8,45*8}},
- {"little bowl",{23*8,42*8}},
- {"big bowl",{17*8,45*8}},
- {"malfoi",{46*8,52*8}},
-	{"terr'akkas",{21*8,28*8}},
-	{"hawai",{18*8,39*8}}
-	}
 	cellx = 116
 	celly = 8
 	sx = 25
@@ -196,7 +143,6 @@ function buy(price)
   additem(menuscreen[menuid].text[selectid][1])
   sfx(28)
   money -=price
- -- additem(menuselect)
  else
 		sfx(23)
 	end
@@ -205,8 +151,6 @@ end
 function getprice()
 	sfx(23)
 end
- 
-
 
 
 function isblocked(x,y)
@@ -272,8 +216,6 @@ function _update()
   	 --noop
   elseif gamestate ==5 then
   	handleinputs_dialogue()
-  elseif gamestate ==6 then
-   handleinputs_shop()
   end
  end
 end
@@ -296,16 +238,11 @@ function _draw()
    draw_gameover()
   elseif gamestate ==5 then
    draw_dialogue()
-  elseif gamestate ==6 then
-   draw_shop()
-  end
+   end
  end
 
 end
 -->8
-
-
-
 function inittext()
  verbs = 
  {"killed",
@@ -448,6 +385,32 @@ function inittext()
  "the shroud of holy noise",
  "the burger king"
  }
+
+	stringstodraw={
+	{"hogsface",{36*8,20*8}},	
+	{"capitol\ncity",{39*8,26*8}},
+	{"meagas",{45*8,33*8}},
+	{"jizzleknob\nprep",{51*8,19*8}},
+	{"erik's\nisland",{57*8,35*8}},
+	{"the\nbig\napple",{47*8,18*8}},
+	{"castle\nbelaroth",{62*8,24*8}},
+ {"woods of\nholly",{41*8,41*8}},
+ {"fingarian glacier",{46*8,12*8}},
+ {"scrr",{18*8,34*8}},
+ {"mountains of\nits'ak",{21*8,15*8}},
+ {"gunder",{33*8,14*8}},
+ {"mcshingleshane\nforest",{30*8,25*8}},
+ {"shrike\nvalley",{40*8,22*8}},
+ {"furlingshire",{30*8,38*8}},
+ {"terenth",{56*8,28*8}},
+ {"gratax",{42*8,45*8}},
+ {"little bowl",{23*8,42*8}},
+ {"big bowl",{17*8,45*8}},
+ {"malfoi",{46*8,52*8}},
+	{"terr'akkas",{21*8,28*8}},
+	{"hawai",{18*8,39*8}}
+	}
+
 
 end
 
@@ -756,33 +719,48 @@ function draw_worldscreen()
   pal()
  end
 
+function canmovementblocked(xoff,yoff)
+	local blocked = true
+	--if band((getmapflags(can,0,can.speed)),0x1)==0 then
+   
+	if band(
+	(getmapflags(can,xoff,yoff)
+	), 0x1)==0 and
+ not mapelem_blocking(world,levelid,xoff,yoff,true) then
+	 blocked = false
+ end
+
+return blocked
+end
+
 function handleinputs_worldscreen()
-  currtime= time()
   updatenpcs()
   yadjust = 0
   xadjust = 0
   if btn(0) then
   	updatesprite(can)
-  	if band((getmapflags(can,-can.speed,0)), 0x1)==0 then
-  		xadjust+=can.speed
+  	if not canmovementblocked(-can.speed,0) then
+   		xadjust+=can.speed
   		can.faceleft = true
   	end
   elseif btn(1) then
    updatesprite(can)
- 		if band((getmapflags(can,can.speed,0)), 0x1)==0 then
+	  if not canmovementblocked(can.speed,0) then
     xadjust-=can.speed
     can.faceleft = false
    end
   end
   if btn(2) then
    updatesprite(can)
- 		if band((getmapflags(can,0,-can.speed)),0x1)==0 then
+ 		
+   if not canmovementblocked(0,-can.speed) then
+  
  			yadjust+=can.speed
  		end
   elseif btn(3) then
    updatesprite(can) 
- 		if band((getmapflags(can,0,can.speed)),0x1)==0 then
-   	yadjust-=can.speed 
+  if not canmovementblocked(0,can.speed) then
+    	yadjust-=can.speed 
    end
   end
   
@@ -822,7 +800,7 @@ end
 
 
 function world_select()
-selectnpc()
+	selectnpc()
 end
 ----------- battle -----------   cls()
 
@@ -1083,33 +1061,6 @@ function handleinputs_battlescreen()
   end
 
 end
-
------------ shop --------
-
-function draw_shop()
- menuid = 4
- gamestate = 2
- --rectfill(0,90,127,127,7)
- 
-
- --rect(0,90,127,127,6)
- --print("shop",20,95,0)
-
---	print ("press z to return",
---	menu_bounce_start,120,6)
-	
---	bounceupdate()
-	end
-
-function handleinputs_shop()
-  if btnp(4) then 
-    sfx(26)
-    returntoworld()
-  end
-end
-
-
-
 -->8
 
 outside_hoggsface = {37,21,37,21}
@@ -1185,18 +1136,27 @@ init_cavelems()
  towns[1].nr_of_elems =4
  towns[1].elems=
  {
- {114,120*8,003*8,"tavern",2,false},
- {98,125*8,004*8,nil,nil,false},
- {67,120*8,7*8,"exit",1,false},
- {67,121*8,7*8,"exit",1,false}
+ {114,120*8,003*8,"tavern",2,false,nil},
+
+ {98,125*8,004*8,nil,nil,false,true},
+ {67,120*8,7*8,"exit",1,false,nil},
+ {67,121*8,7*8,"exit",1,false,nil}
+ 
  }
  
  --tavern
- towns[2].nr_of_elems = 2
+ towns[2].nr_of_elems = 7
  towns[2].elems=
  {
- {67,121*8,15*8,"exit",1,false},
- {67,122*8,15*8,"exit",1,false}
+ {112,118*8,12*8,nil,nil,false,true},
+
+ {126,127*8,12*8,nil,nil,false,true},
+ {126,126*8,12*8,nil,nil,false,true},
+ {126,125*8,12*8,nil,nil,false,true},
+ {126,124*8,12*8,nil,nil,false,true},
+
+ {67,121*8,15*8,"exit",1,false,nil},
+ {67,122*8,15*8,"exit",1,false,nil}
  }
  
  
@@ -1204,41 +1164,42 @@ init_cavelems()
  towns[3].nr_of_elems =10
  towns[3].elems=
  {
- {98,118*8,2*8,nil,nil},
- {98,125*8,003*8,nil,nil,false},
- {98,126*8,005*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {20,121*8,1*8,nil,nil,false},
- {21,122*8,1*8,nil,nil,false},
- {67,120*8,7*8,"exit",3,false},
- {67,121*8,7*8,"exit",3,false}
+ {98,118*8,2*8,nil,nil,nil},
+ {98,125*8,003*8,nil,nil,false,nil},
+ {98,126*8,005*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {20,121*8,1*8,nil,nil,false,nil},
+ {21,122*8,1*8,nil,nil,false,nil},
+ {67,120*8,7*8,"exit",3,false,nil},
+ {67,121*8,7*8,"exit",3,false,nil}
  }
  
  --gratax
  towns[4].nr_of_elems =6
  towns[4].elems=
  {
- {98,118*8,2*8,nil,nil,false},
- {98,125*8,2*8,nil,nil,false},
- {98,129*8,005*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {67,120*8,7*8,"exit",4,false},
- {67,121*8,7*8,"exit",4,false}
+ {98,118*8,2*8,nil,nil,false,nil},
+ {98,125*8,2*8,nil,nil,false,nil},
+ {98,129*8,005*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {67,120*8,7*8,"exit",4,false,nil},
+ {67,121*8,7*8,"exit",4,false,nil}
  }
  
   --meagas
  towns[5].nr_of_elems =6
  towns[5].elems=
  {
- {98,118*8,2*8,nil,nil,false},
- {98,125*8,2*8,nil,nil,false},
- {98,129*8,005*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {67,120*8,7*8,"exit",4,false},
- {67,121*8,7*8,"exit",4,false}
+ {98,118*8,2*8,nil,nil,false,nil},
+ {98,125*8,2*8,nil,nil,false,nil},
+ {98,129*8,005*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {67,120*8,7*8,"exit",4,false,nil},
+ {67,121*8,7*8,"exit",4,false,nil}
  }
+ 
  
  
  
@@ -1246,37 +1207,91 @@ init_cavelems()
  towns[6].nr_of_elems =6
  towns[6].elems=
  {
- {98,118*8,2*8,nil,nil,false},
- {98,125*8,2*8,nil,nil,false},
- {98,129*8,005*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {67,120*8,7*8,"exit",4,false},
- {67,121*8,7*8,"exit",4,false}
+ {98,118*8,2*8,nil,nil,false,nil},
+ {98,125*8,2*8,nil,nil,false,nil},
+ {98,129*8,005*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {67,120*8,7*8,"exit",4,false,nil},
+ {67,121*8,7*8,"exit",4,false,nil}
  }
 --terrakis 
  towns[7].nr_of_elems =6
  towns[7].elems=
  {
- {98,118*8,2*8,nil,nil,false},
- {98,125*8,2*8,nil,nil,false},
- {98,129*8,005*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {67,120*8,7*8,"exit",4,false},
- {67,121*8,7*8,"exit",4,false}
+ {98,118*8,2*8,nil,nil,false,nil},
+ {98,125*8,2*8,nil,nil,false,nil},
+ {98,129*8,005*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {67,120*8,7*8,"exit",4,false,nil},
+ {67,121*8,7*8,"exit",4,false,nil}
  }
 --jizzleknob 
  towns[8].nr_of_elems =6
  towns[8].elems=
  {
- {98,118*8,2*8,nil,nil,false},
- {98,125*8,2*8,nil,nil,false},
- {98,129*8,005*8,nil,nil,false},
- {98,123*8,004*8,nil,nil,false},
- {67,120*8,7*8,"exit",4,false},
- {67,121*8,7*8,"exit",4,false}
+ {98,118*8,2*8,nil,nil,false,nil},
+ {98,125*8,2*8,nil,nil,false,nil},
+ {98,129*8,005*8,nil,nil,false,nil},
+ {98,123*8,004*8,nil,nil,false,nil},
+ {67,120*8,7*8,"exit",4,false,nil},
+ {67,121*8,7*8,"exit",4,false,nil}
  }
+
 end
 
+
+function mapelem_blocking(world,level,xoff,yoff,isplayer)
+ blockinglist = {}
+ 
+ if world == "overworld" then
+ --noop
+ elseif world =="town" or
+ world == "tavern"  then
+ 	blockinglist= getblockingelems(towns,level)
+ elseif world == "cave" then
+  blockinglist= getblockingelems(cavelevels,level)
+	end
+ 
+ for i = 1, #blockinglist do
+  if isplayer then
+   if isplayerintersecting(
+   	blockinglist[i][2],
+   	blockinglist[i][3],
+   	xoff,yoff)
+   then
+   	return true
+   end
+  else
+   if arespritesintersecting(
+   	blockinglist[i][2],
+   	blockinglist[i][3],
+   	xoff,yoff) then 
+   		return true
+   	else 
+   		return false
+    end
+  end
+  
+ end
+ return false
+ 
+end
+
+
+
+function getblockingelems(table,id)
+ blocking = {}
+ for x = 1, #table[id].elems do
+  local e = table[id].elems[x]
+  if e[7] != nil then
+  	add(blocking,e)
+  end
+ end
+
+
+return blocking
+
+end
 
 
 function draw_caveelems()
@@ -1534,11 +1549,7 @@ function drawmap()
 			end
  else
   	map(cellx, celly, sx, sy,celw, celh)
-		
-			  
-   if world == "tavern" then 
-  		spr(112,40,40) --table
-  end
+
   
  end
  
@@ -1708,11 +1719,7 @@ function additem(name)
  add(menuscreen[2].text,name)
  add(menuscreen[2].icons,icon)
  menuscreen[2].len+=1
-
- 
- 
  add(menuscreen[2].text,back)
-
 end
 
 
@@ -1941,8 +1948,8 @@ function initnpcs()
       --blemish  
  npcs[11].speed =0.5
  npcs[11].frames = {119,119,120,120}
- npcs[11].x= 125*8
- npcs[11].y = 12*8
+ npcs[11].x= 126*8
+ npcs[11].y = 11*8
  npcs[11].name = "blemish"
  npcs[11].msg = ": greetings."
  npcs[11].alive = true
@@ -1955,11 +1962,17 @@ function initnpcs()
  
  end
 
+function openshop()
+ menuid = 4
+ gamestate = 2
+end
 
 function updatenpcs()
  for n=1, #npcs do
-  updatesprite(npcs[n])
-  movesprite(npcs[n])
+  if npcs[n].world == world then
+   updatesprite(npcs[n])
+   movesprite(npcs[n])
+  end
  end
  
 end
@@ -2024,24 +2037,43 @@ function selectnpc()
  	 gamestate = 5
   elseif n.interact =="shop" then
  	  sfx(26)
- 	  gamestate = 6
+ 	  openshop()
  	end
  end
 end
 
+function arespritesintersecting(x1,y1,x2,y2)
+if world != "overworld" then
+  x1 =(x1/8-cellx) *8+sx+4 
+  y1 =(y1/8-celly) *8+sy+4
+  x2 =(x2/8-cellx) *8+sx+4 
+  y2 =(y2/8-celly) *8+sy+4
+end
 
-function isplayerintersecting(spr_x,spr_y)
+	if abs(x1 - x2)<4 and 
+   abs(y1 -y2)<4 then
+   return true
+ else
+ return false
+ end
+
+end
+
+
+function isplayerintersecting(spr_x,spr_y,playerxoff,playeryoff)
  intersect = false
- 
+ if not playerxoff then playerxoff = 0 end
+ if not playeryoff then playeryoff = 0 end
+
  if world == "overworld" then
-  x_s1 = can.x - mapxoffset
-  y_s1 = can.y - mapyoffset
+  x_s1 = can.x - mapxoffset+playerxoff
+  y_s1 = can.y - mapyoffset+playeryoff
   y_s2 = spr_y+4
   x_s2 = spr_x+4
 
  else
-  x_s1 = can.x
-  y_s1 = can.y
+  x_s1 = can.x + playerxoff
+  y_s1 = can.y + playeryoff
   y_s2 =(spr_y/8-celly) *8+sx+4 
   x_s2 =(spr_x/8-cellx) *8+sy+4
  end
@@ -2116,7 +2148,9 @@ function dorandommoves(sprite,player)
   	ymove = sprite.speed 
   end
 
-	 if not (isblocked(sprite.x+xmove,sprite.y+ymove)) then
+	 if not (isblocked(sprite.x+xmove,sprite.y+ymove)) 
+	 and not mapelem_blocking(world,levelid,sprite.x+4+xmove,sprite.y+ymove+4,false) 
+	 then
 	 	sprite.x +=xmove
 	 	sprite.y +=ymove
 	 	
@@ -2243,14 +2277,14 @@ f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd0000111660
 1222222222222220662266552445542242222225266666666666666200555500005555000eeeeee0050000504241111111111424577777555777775500000000
 40220202920090205524556622251222422222252666666666666662005551100115550005000050000000002411111111111142577555005775550000000000
 90900909090000906622665524455244455555512666666666666662001100000000011000000000000000004411111111111144755000007550000000000000
-000000004242424222222222442442440000bb00000b000000000000000fff00000fff00000066000066666000000000000000000000000000ffff0000000000
-00011000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700004400000044000000440000faaaaff00000000
-00111100424244422112222242444424b00bbb00000bbb000b000000000fff00000fff000067575006757570006446000064460000644600fa9a9aaf00000000
-0111111044424242411444444422224400bbbbb0000bbbb00000000000ddddd00ddddd0006777760067777600688886006cccc6006bbbb60faa9a9af00000000
-0111111042424242211222224424424400bbbbb0000bbbb00b0000b000dfdd0ff0dddd0006755677606755600688786006cc7c6006bb7b60fa9a9aaf00000000
-05111150424442424444554442411424003b3b3000bbbb3000000000001111000011110006776600006766000687886006c7cc6006b7bb60faaaaaff00000000
-0551155042424242222251222411114200003000003bbb30000b0000001116600661110006760060066660000688886006cccc6006bbbb60faafff0000000000
-0505505042424242444455444411114400000000000333000000000000660000000006606660000000000060006666000066660000666600aff0000081818181
+000000004242424222222222442442440000bb00000b000000000000000fff00000fff0000006600006666600000000000000000000000005555555500000000
+00055000424242424444444422444422000bbb0b000bb000000b0b00000f5ff0000f5ff060067760067777700004400000044000000440005dd5d55500000000
+00555500424244422112222242444424b00bbb00000bbb000b000000000fff00000fff000067575006757570006446000064460000644600555d55d500000000
+0555555044424242411444444422224400bbbbb0000bbbb00000000000ddddd00ddddd0006777760067777600688886006cccc6006bbbb605555555500000000
+0555555042424242211222224424424400bbbbb0000bbbb00b0000b000dfdd0ff0dddd0006755677606755600688786006cc7c6006bb7b601111111100000000
+01555510424442424444554442411424003b3b3000bbbb3000000000001111000011110006776600006766000687886006c7cc6006b7bb601111111100000000
+0115511042424242222251222411114200003000003bbb30000b0000001116600661110006760060066660000688886006cccc6006bbbb601111111100000000
+01011010424242424444554444111144000000000003330000000000006600000000066066600000000000600066660000666600006666001111111181818181
 e1e1e1e1e1e1e1e0f04262d0e1e1f14262e32121c113131313131313131313132121212121212121212121a32161616161212121212121218181818181818181
 81818181818181818181818181818181818181818181818181818181818100000000000000000000000000000000000000353535353535353535353535353535
 35e1e1e1e1e1e1e1e1e1e1e1e1e1e1f16221a3b3212121212121212121212121212121212121212121212121f361818161212121212161617181818181818181
