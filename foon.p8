@@ -50,13 +50,11 @@ function _init()
  menuscreen[2].len = 3
  menuscreen[2].text =
  {
- {"lunar sword",0},
  {"deed to usidore's hat",0}, 
  {"back",1}
  }
  menuscreen[2].icons =
  {
- 68,
  84
  }
  
@@ -142,8 +140,6 @@ function buy(price)
 end
 
 function isblocked(x,y)
- -- local tilex = ((x-(x % 8) ) / 8)
-  --local tiley = ((y-(y % 8) ) / 8) 
  	if (fget(mget(((x-(x % 8) ) / 8),((y-(y % 8) ) / 8)) , 0)) then
  	 return true
  	end 
@@ -1096,18 +1092,26 @@ caveids={{113,23},{113,39},{113,7},{98,48}}
 cavelevels ={}
 function init_cavelems()
 
- for n=1,nr_of_cavelevels do 
+ for n=1,nr_of_cavelevels-1 do 
   add(cavelevels,{})
   cavelevels[n].nr_of_elems = 4
 		cavelevels[n].elems ={}
 		cavelevels[n].elems = 
 		{
-		{67,(caveids[n][1]+7)*8,(caveids[n][2]+15)*8,"exit",1,false},
-		{67,(caveids[n][1]+8)*8,(caveids[n][2]+15)*8,"exit",1,false},
+		{67,(caveids[n][1]+7)*8,(caveids[n][2]+15)*8,"exit",n-1,false},
+		{67,(caveids[n][1]+8)*8,(caveids[n][2]+15)*8,"exit",n-1,false},
 		{101,(caveids[n][1]+7)*8,(caveids[n][2])*8,"cave",n+1,false},
 		{102,(caveids[n][1]+8)*8,(caveids[n][2])*8,"cave",n+1,false}	
 		}
  end
+ add(cavelevels,{})
+ cavelevels[4].nr_of_elems = 2
+	cavelevels[4].elems ={}
+	cavelevels[4].elems = 
+		{
+		{67,(caveids[4][1]+7)*8,(caveids[4][2]+15)*8,"exit",3,false},
+		{67,(caveids[4][1]+8)*8,(caveids[4][2]+15)*8,"exit",3,false}
+ }
 end
 
 
@@ -1426,16 +1430,13 @@ function processteleport()
   levelid = 8
   teleport("town")   
  elseif xywithin(x,y,outside_cave) then
-  levelid = 1
+ levelid = 1
   teleport("cave")
- end
- 
+ end 
 end
 
 
-
 function drawmap()
-
  if world == "overworld" then
   	map(0, 0,mapxoffset, mapyoffset, 128, 64 )
 			if mapnames_enabled then
@@ -1530,6 +1531,8 @@ function geticon(name)
   icon=124
  elseif name == "health potion" then
   icon=125
+ elseif name == "lunar sword" then
+  icon=068  
  end
  return icon
 end
@@ -1582,7 +1585,7 @@ end
 
 
 function initnpcs()
- nr_of_npcs = 13
+ nr_of_npcs = 14
  npcs ={}
  intersecting = {}
  for n=1,nr_of_npcs+copycount do 
@@ -1800,20 +1803,40 @@ function initnpcs()
  }
   --mimic
  npcs[13].frames = {78}
- npcs[13].x= 120*8
- npcs[13].y= 25*8
+ npcs[13].x= 103*8
+ npcs[13].y= 54*8
  npcs[13].world = "cave"
  npcs[13].name = "mimic" 
- npcs[13].level = 2
- npcs[13].lvlid = 2
+ npcs[13].lvlid = 4
  npcs[13].path={
- {120*8,25*8}
+ {103*8,54*8}
  }
+ 
+  --mimic
+ npcs[14].frames = {78}
+ npcs[14].x= 108*8
+ npcs[14].y= 54*8
+ npcs[14].world = "cave"
+ npcs[14].name = "mimic" 
+ npcs[14].interact = "chest"
+ npcs[14].item = "lunar sword" 
+ npcs[14].lvlid = 4
+ npcs[14].path={
+ {108*8,54*8}
+ } 
+ 
+ 
  end
 
 function openshop()
  menuid = 4
  gamestate = 2
+end
+
+function openchest(item)
+ additem(item)
+ dialogue = "you found a "..item
+ gamestate = 5
 end
 
 function updatenpcs()
@@ -1857,7 +1880,8 @@ function interact(n)
    drawsprite(93,n.x+6,n.y-8,false)
   elseif n.interact == "talk" then
   drawsprite(109,n.x+6,n.y-8,false)
-  elseif n.interact =="shop" then
+  elseif( n.interact =="shop") or
+   ( n.interact =="chest")then
   drawsprite(77,n.x+6,n.y-8,false)
   end
 
@@ -1878,6 +1902,11 @@ function selectnpc()
   elseif n.interact =="shop" then
  	  sfx(26)
  	  openshop()
+ 	elseif n.interact =="chest" then
+ 	  n.frames = {79}
+ 	  n.interact = ""
+ 	  sfx(27)
+ 	  openchest(n.item)
  	end
  end
 end
