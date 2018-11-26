@@ -1133,7 +1133,7 @@ init_cavelems()
  --hogsface
  towns[1].nr_of_elems =4
  add(towns[1].elems,{114,98*8,003*8,"tavern",2,false,nil,false})
- add(towns[1].elems, {98,103*8,004*8,"castle",3,false,nil,false})
+ add(towns[1].elems, {98,103*8,004*8,nil,nil,false,true,false})
 
  --tavern
  
