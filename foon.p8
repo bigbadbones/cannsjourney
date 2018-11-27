@@ -248,6 +248,8 @@ function _draw()
    draw_dialogue()
    end
  end
+ //newworld:draw()
+// myelem.draw()
 end
 -->8
 function inittext()
@@ -1118,7 +1120,68 @@ function init_cavelems()
 end
 
 
+worldmap ={}
+worldmap.currworld = nil
+worldmap.lvls = {}
+function worldmap:blocked(x,y)
+	return self.currworld.blocked
+end
+function worldmap:draw()
+  self.currworld:draw()
+end
+
+
+lvlmap = {}
+lvlmap.elems ={}
+function lvlmap:blocked(x,y)
+ for i = 1, #self.elems do
+  local l = self.elems[i]
+  if l.block == true then
+   if intersect_f(l.x,l.y,x,y) then
+    return true
+   end
+  end
+ end
+ 
+ return false
+end
+function lvlmap:draw()
+ for i = 1, #self.elems do
+ local l = self.elems[i]
+  drawsprite(l.sprite,l.x,l.y)
+ end
+end
+
+mapelem = {}
+mapelem.x = 0
+mapelem.y = 0
+mapelem.sprite = 1
+mapelem.tele = {nil,nil}
+mapelem.block = false
+mapelem.drawlvl = 0
+function mapelem:touch()
+  return 
+end
+
+
+
 function init_mapelems()
+
+chunt = copy(mapelem)
+chunt.x =26*8
+chunt.y =23*8
+chunt.sprite = 82
+chunt_i = copy(mapelem)
+chunt_i.x =99*8
+chunt_i.y =05*8
+chunt_i.sprite = 82
+newmap = copy(lvlmap)
+newworld = copy(worldmap)
+add(newmap.elems,chunt)
+add(newmap.elems,chunt_i)
+add(newworld.lvls, newmap)
+newworld.currworld = newmap
+
 init_cavelems()
  for n=1,nr_of_towns do 
   add(towns,{})
@@ -1521,17 +1584,21 @@ function drawmap()
  
 end
 -->8
-function copy(obj, seen)
-  if type(obj) ~= 'table' then return obj end
-  if seen and seen[obj] then return seen[obj] end
-  local s = seen or {}
-  local res = setmetatable({}, getmetatable(obj))
-  s[obj] = res
-  for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
-  return res
+-- lots of useful stuff here
+-- taken from harraps post:
+-- https://www.lexaloffle.com/bbs/?tid=2951
+function copy(o)
+  local c
+  if type(o) == 'table' then
+    c = {}
+    for k, v in pairs(o) do
+      c[k] = copy(v)
+    end
+  else
+    c = o
+  end
+  return c
 end
-
-
 -->8
 function useitem()
 local item = 
