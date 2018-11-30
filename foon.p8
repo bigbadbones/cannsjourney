@@ -15,6 +15,20 @@ function togglemap()
 end
 
 function _init()
+
+--chunt = copy(mapelem)
+--chunt.loc ={28*8,21*8}
+--chunt.sprite = 82
+--chunt.block = true
+
+--chunt_i = copy(mapelem)
+--chunt_i.loc ={38*8,23*8}
+--chunt_i.sprite = 82
+--chunt_i.block = true
+
+
+
+
  money = 100
  copycount = 10
  can = {}
@@ -81,6 +95,7 @@ function _init()
  125}
  
  music(1)
+
  oldlocs = {}
 	cellx = 116
 	celly = 8
@@ -91,8 +106,11 @@ function _init()
 	mapxoffset = -8 * 29
 	mapyoffset = -8 * 16
 	world="overworld"
+
  inittext()
+
  initnpcs()
+
  init_mapelems()
  
  statuseffects = {}
@@ -101,6 +119,7 @@ function _init()
  // additem("ether")
 /// additem("red potion")
 //  additem("red potion")
+cls()
 end
 
 
@@ -142,6 +161,9 @@ end
 function isblocked(x,y)
  	if (fget(mget(((x-(x % 8) ) / 8),((y-(y % 8) ) / 8)) , 0)) then
  	 return true
+ 	--elseif (newworld:blocked(x,y)) then
+ 	--	return true	
+ 	
  	end 
  	return false
 end
@@ -177,7 +199,7 @@ end
 function getmapflags(sprite,xoffset,yoffset)
  local x =  getabsoluteposition(sprite.x,sprite.y,world,true)
  local y  = x[2]+yoffset
- x = x[1] + xoffset
+  x = x[1] + xoffset
   xmax = x + sprite.size[1]
   ymax = y + sprite.size[2]
   tilex = ((x-(x % 8) ) / 8)
@@ -207,6 +229,7 @@ function updatesprite(sprite)
 end
 
 function _update()
+ cls()
  if not animation_ongoing then
 
   if gamestate == 0 then
@@ -227,8 +250,10 @@ function _update()
  end
 end
 
-function _draw()
 
+function _draw()
+ cls()
+ print("hello!",0,0,10)
 
  if animation_ongoing then
  	animate()
@@ -237,7 +262,6 @@ function _draw()
  		draw_titlescreen()
   elseif (gamestate==1) then
    draw_worldscreen()
-   updatemapinteracts()
  	elseif gamestate ==2 then
  	 draw_menuscreen()
  	elseif gamestate ==3 then
@@ -248,7 +272,13 @@ function _draw()
    draw_dialogue()
    end
  end
- //newworld:draw()
+// l =  getabsoluteposition(can.x,can.y,world,true)
+// print(l[1]..','..l[2],10,50,10)
+// print(chunt.loc[1]..','..chunt.loc[2],10,75,10)
+ //print(intersect_box(l[1],chunt.loc[1],l[2],chunt.loc[2]),0,0,10)
+
+ //local l =  getabsoluteposition(can.x,can.y,world,true)
+ //print(newworld:blocked(l[1],l[2]),10,10,10)
 // myelem.draw()
 end
 -->8
@@ -295,76 +325,76 @@ function inittext()
  "cursed",
  "cooked dinner with",
  "charmed the \ninlaws with",
- "ignored",
- "went out \nclubbing with",
- "embarked on \na quest with",
- "couldn't remember",
- "am really foggy about",
- "struggled to \nthink about",
- "pretended to \nknow about",
- "entombed",
- "set a trap for",
- "assasinated",
- "knighted",
- "embalmed",
- "annointed",
+-- "ignored",
+-- "went out \nclubbing with",
+-- "embarked on \na quest with",
+-- "couldn't remember",
+-- "am really foggy about",
+-- "struggled to \nthink about",
+-- "pretended to \nknow about",
+-- "entombed",
+-- "set a trap for",
+-- "assasinated",
+-- "knighted",
+-- "embalmed",
+-- "annointed",
  "made fun of"}
  nouns = {
- "a great rock",
- "many houseflies",
- "an evil sigil",
- "a dragon",
- "arnie", 
- "usidore",
- "a cockatrice",
- "a eunuch",
- "a shapeshifter",
- "a genie",
- "dripfang",
- "blemish",
- "activia",
- "an evil spider",
- "the cavern \nof many tomorrows",
- "the population\nof hawai",
- "the waving woman",
- "some tourists",
- "an innkeeper",
- "a stablekeeper",
- "a milkmaid",
- "a tax collector",
- "a corsair",
- "a brigand",
- "momo",
- "a talking flower",
- "a sheriff",
- "a blue tiger",
- "a memory gremlin",
- "arnor",
- "larry birdman",
- "a soulwalker",
- "a pinglet",
- "mayor manana",
- "an evil skeleton",
- "dq",
- "a mimic",
- "chunt",
- "spintax", 
- "wheelbear",
- "cockroach clown",
- "twosidore",
- "a slime",
- "a vampire",
- "a hunger ghost",
- "6 werewolves",
- "a sphere of \n solid buttholes",
- "an innocent shopkeeper",
- "a tavern wench",
- "an elderdly scholar",
- "a thousand bees", 
- "the pyramid of confusion",
- "a harpie",
- "the hottest shark \ni've ever seen",
- "otak barleyfoot",
+-- "a great rock",
+-- "many houseflies",
+-- "an evil sigil",
+-- "a dragon",
+-- "arnie", 
+-- "usidore",
+-- "a cockatrice",
+-- "a eunuch",
+-- "a shapeshifter",
+-- "a genie",
+-- "dripfang",
+-- "blemish",
+-- "activia",
+-- "an evil spider",
+-- "the cavern \nof many tomorrows",
+-- "the population\nof hawai",
+-- "the waving woman",
+-- "some tourists",
+-- "an innkeeper",
+-- "a stablekeeper",
+-- "a milkmaid",
+-- "a tax collector",
+-- "a corsair",
+-- "a brigand",
+-- "momo",
+-- "a talking flower",
+-- "a sheriff",
+-- "a blue tiger",
+-- "a memory gremlin",
+-- "arnor",
+-- "larry birdman",
+-- "a soulwalker",
+-- "a pinglet",
+-- "mayor manana",
+-- "an evil skeleton",
+-- "dq",
+-- "a mimic",
+-- "chunt",
+-- "spintax", 
+-- "wheelbear",
+-- "cockroach clown",
+ --"twosidore",
+ --"a slime",
+-- "a vampire",
+-- "a hunger ghost",
+-- "6 werewolves",
+-- "a sphere of \n solid buttholes",
+-- "an innocent shopkeeper",
+-- "a tavern wench",
+-- "an elderdly scholar",
+-- "a thousand bees", 
+-- "the pyramid of confusion",
+-- "a harpie",
+ --"the hottest shark \ni've ever seen",
+ --"otak barleyfoot",
  "tomblain belaroth",
  "the dark lord",
  "bob johnson",
@@ -383,12 +413,12 @@ function inittext()
  "a lucky scarab",
  "an evil rooster",
  "good king belaroth",
- "a flock of birds",
- "a single starling",
- "a cricket",
- "a she-goat",
- "a great red stag",
- "a tiger with 10 eyes",
+-- "a flock of birds",
+-- "a single starling",
+-- "a cricket",
+-- "a she-goat",
+-- "a great red stag",
+-- "a tiger with 10 eyes",
  "the entire faculty of \n jizzleknob prep",
  "the dark blade of infinite",
  "the shroud of holy noise",
@@ -683,13 +713,10 @@ end
 
 
 function draw_dialogue()
-
+ draw_worldscreen()
  rectfill(0,90,127,127,7)
- 
-
  rect(0,90,127,127,6)
  print(dialogue,20,95,0)
-
 	print ("press z to return",
 	menu_bounce_start,120,6)
 	
@@ -714,9 +741,8 @@ end
 
 function draw_worldscreen()
   cls()
-  drawmap()
+ 	newworld:draw()
  	drawnpcs() 
-  draw_mapelems()
   pal()
   
   if (statuseffects.redpotion[1]==true) then
@@ -726,18 +752,18 @@ function draw_worldscreen()
   end
   spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
   pal()
-  draw_topmapelems()
  end
 
 function canmovementblocked(xoff,yoff)
 	local blocked = true
-	--if band((getmapflags(can,0,can.speed)),0x1)==0 then
-   
+ local l =  getabsoluteposition(can.x+xoff,can.y+yoff,world,true)
 	if band(
 	(getmapflags(can,xoff,yoff)
-	), 0x1)==0 and
- not mapelem_blocking(world,levelid,xoff,yoff,true) then
+	), 0x1)==0 
+	and not (newworld:blocked(l[1],l[2]) )
+		then
 	 blocked = false
+
  end
 
 return blocked
@@ -790,21 +816,9 @@ function handleinputs_worldscreen()
   	can.x -=xadjust
   	can.y -=yadjust
   end
- 
-  teleportflags = getmapflags(can,0,0)
- 	error = false
-  if bor(teleportflags,0x6) then
-   error = true
-    if not (band(teleportflags,0x4)==0) then
-    	processteleport(true)
-   elseif not (band(teleportflags,0x2)==0) then
-    	processteleport(false)
-    	
-   else
-    
-  end
-  end
-  
+
+  local l =  getabsoluteposition(can.x,can.y,world,true)
+  newworld:touch(l[1],l[2])
 
 end
 
@@ -1073,7 +1087,6 @@ function handleinputs_battlescreen()
 end
 -->8
 
-outside_hoggsface = {37,21,37,21}
 outside_capitol_city = {40,28,41,28}
 outside_gratax = {43,46,43,46}
 outside_meagas = {46,34,46,34}
@@ -1124,68 +1137,129 @@ worldmap ={}
 worldmap.currworld = nil
 worldmap.lvls = {}
 function worldmap:blocked(x,y)
-	return self.currworld.blocked
+	return self.currworld:blocked(x,y)
 end
 function worldmap:draw()
+   if world == "overworld" then
+  	map(0, 0,mapxoffset, mapyoffset, 128, 64 )
+			if mapnames_enabled then
+ 			for s=1,#stringstodraw do
+ 			 string = stringstodraw[s]
+ 				print(string[1],string[2][1]+mapxoffset,string[2][2]+mapyoffset,0)
+ 			end
+			end
+ else
+  	map(cellx, celly, sx, sy,celw, celh)
+
+  
+ end
   self.currworld:draw()
 end
-
-
+function worldmap:touch(x,y)
+  self.currworld:touch(x,y)
+end
+function worldmap:switchworld(id)
+ self.currworld = self.lvls[id]
+end
 lvlmap = {}
 lvlmap.elems ={}
-function lvlmap:blocked(x,y)
+function lvlmap:blocked(xin,yin)
  for i = 1, #self.elems do
   local l = self.elems[i]
   if l.block == true then
-   if intersect_f(l.x,l.y,x,y) then
+   if intersect_box(l.loc[1],xin,l.loc[2],yin) then
     return true
    end
   end
  end
- 
  return false
 end
 function lvlmap:draw()
  for i = 1, #self.elems do
  local l = self.elems[i]
-  drawsprite(l.sprite,l.x,l.y)
+  drawsprite(l.sprite,l.loc[1],l.loc[2])
  end
+end
+function lvlmap:addblockingelem(sprite,x,y)
+ m = copy(mapelem)
+ m.sprite = sprite
+ m.block = true
+ m.loc = {x,y}
+ add(self.elems,m)
+end
+function lvlmap:touch(x,y)
+ for i=1, #self.elems do
+ 	l = self.elems[i]
+ 	if intersect_box(l.loc[1],x,l.loc[2],y)then
+			l:touch()
+		end
+	end
+end
+function lvlmap:addtown(x,y,tele)
+ m = copy(mapelem)
+ m.sprite = 32
+ m.loc = {x,y}
+ m.tele = tele
+ add(self.elems,m)
 end
 
 mapelem = {}
-mapelem.x = 0
-mapelem.y = 0
+mapelem.loc = {0,0}
 mapelem.sprite = 1
 mapelem.tele = {nil,nil}
 mapelem.block = false
 mapelem.drawlvl = 0
 function mapelem:touch()
-  return 
+	 if (self.tele[1]!=nil) and
+	 (self.tele[2]!=nil) then
+	  levelid = self.tele[2]
+   teleport(self.tele[1])
+   end 
+end
+
+
+
+function create_world()
+
+ hogsface = copy(lvlmap)
+ tavern  =  copy(lvlmap)
+ overworld = copy(lvlmap)
+ newworld = copy(worldmap)
+
+
+ tavern_m = copy(mapelem)
+ tavern_m.loc ={98*8,003*8}
+ tavern_m.sprite = 114
+ tavern_m.tele = {"tavern",3}
+ add(hogsface.elems,tavern_m)
+ 
+ overworld:addtown(37*8,21*8,{"town",2})
+
+ hogsface:addblockingelem(98,103*8,4*8)
+ tavern:addblockingelem(98,103*8,4*8)
+
+ 
+ newworld.lvls[1]  = overworld
+ newworld.lvls[2]  = hogsface
+ newworld.lvls[3]  = tavern
+ newworld.lvls[4]  = tavern
+  
+ newworld.currworld = newworld.lvls[1]
+
+
 end
 
 
 
 function init_mapelems()
 
-chunt = copy(mapelem)
-chunt.x =26*8
-chunt.y =23*8
-chunt.sprite = 82
-chunt_i = copy(mapelem)
-chunt_i.x =99*8
-chunt_i.y =05*8
-chunt_i.sprite = 82
-newmap = copy(lvlmap)
-newworld = copy(worldmap)
-add(newmap.elems,chunt)
-add(newmap.elems,chunt_i)
-add(newworld.lvls, newmap)
-newworld.currworld = newmap
+
+create_world()
 
 init_cavelems()
  for n=1,nr_of_towns do 
   add(towns,{})
-  towns[n].nr_of_elems = 2
+  towns[n].nr_of_elems = 0
   towns[n].nr_of_interacts=0
    towns[n].elems=
  	{
@@ -1194,100 +1268,50 @@ init_cavelems()
  	}
  end
  
- --hogsface
- towns[1].nr_of_elems =4
- add(towns[1].elems,{114,98*8,003*8,"tavern",2,false,nil,false})
- add(towns[1].elems, {98,103*8,004*8,nil,nil,false,true,false})
+ --hogsface towns[1].nr_of_elems =4
+// add(towns[1].elems,{114,98*8,003*8,"tavern",2,false,nil,false})
+ //add(towns[1].elems, {98,103*8,004*8,nil,nil,false,true,false})
 
  --tavern
  
- towns[2].nr_of_elems = 7
+ towns[2].nr_of_elems = 0
  towns[2].elems ={}
- add(towns[2].elems, {112,96*8,12*8,nil,nil,false,true,false})
- add(towns[2].elems, {126,105*8,12*8,nil,nil,false,true,false})
- add(towns[2].elems, {126,104*8,12*8,nil,nil,false,true,false})
- add(towns[2].elems, {126,103*8,12*8,nil,nil,false,true,false})
- add(towns[2].elems, {126,102*8,12*8,nil,nil,false,true,false})
- add(towns[2].elems, {67,99*8,15*8,"exit",1,false,nil,false})
- add(towns[2].elems, {67,100*8,15*8,"exit",1,false,nil,false})
+// add(towns[2].elems, {112,96*8,12*8,nil,nil,false,true,false})
+// add(towns[2].elems, {126,105*8,12*8,nil,nil,false,true,false})
+// add(towns[2].elems, {126,104*8,12*8,nil,nil,false,true,false})
+// add(towns[2].elems, {126,103*8,12*8,nil,nil,false,true,false})
+-- add(towns[2].elems, {126,102*8,12*8,nil,nil,false,true,false})
+-- add(towns[2].elems, {67,99*8,15*8,"exit",1,false,nil,false})
+-- add(towns[2].elems, {67,100*8,15*8,"exit",1,false,nil,false})
 
  --castle
- towns[3].nr_of_elems = 9
+ towns[3].nr_of_elems = 0
  towns[3].elems =
  {
- {42,104*8,20*8,nil,1,false,nil,true},
- {43,105*8,20*8,nil,1,false,nil,true},
- {44,106*8,20*8,nil,1,false,nil,true},
- {42,104*8,27*8,nil,1,false,nil,true},
- {43,105*8,27*8,nil,1,false,nil,true},
- {44,106*8,27*8,nil,1,false,nil,true},
- {67,104*8,33*8,"exit",4,false,nil,false},
- {67,105*8,33*8,"exit",4,false,nil,false},
- {67,106*8,33*8,"exit",4,false,nil,false} }
-
+ --{42,104*8,20*8,nil,1,false,nil,true},
+-- {43,105*8,20*8,nil,1,false,nil,true},
+ --{44,106*8,20*8,nil,1,false,nil,true},
+-- {42,104*8,27*8,nil,1,false,nil,true}
+-- {43,105*8,27*8,nil,1,false,nil,true},
+-- {44,106*8,27*8,nil,1,false,nil,true},
+-- {67,104*8,33*8,"exit",4,false,nil,false},
+-- {67,105*8,33*8,"exit",4,false,nil,false},
+-- {67,106*8,33*8,"exit",4,false,nil,false} }
+}
 
  --castle
- towns[4].nr_of_elems = 2
+ towns[4].nr_of_elems = 0
  towns[4].elems =
  {
- {67,90*8,62*8,"exit",4,false,nil,false},
- {67,91*8,62*8,"exit",4,false,nil,false} }
+// {67,90*8,62*8,"exit",4,false,nil,false},
+ //{67,91*8,62*8,"exit",4,false,nil,false}
+  }
 
 end
 
 
-function mapelem_blocking(world,level,xoff,yoff,isplayer)
- blockinglist = {}
- 
- if world == "overworld" then
- --noop
- elseif world =="town" or
- world == "tavern"  then
- 	blockinglist= getblockingelems(towns,level)
- elseif world == "cave" then
-  blockinglist= getblockingelems(cavelevels,level)
-	end
- 
- for i = 1, #blockinglist do
-  if isplayer then
-  if arespritesintersecting(
-  can.x+xoff,can.y+yoff,
-  blockinglist[i][2],
-  blockinglist[i][3],true)
-   then
-   	return true
-   end
-  else
-   if arespritesintersecting(
-   	blockinglist[i][2],
-   	blockinglist[i][3],
-   	xoff,yoff) then 
-   		return true
-   	else 
-   		return false
-    end
-  end
-  
- end
- return false
- 
-end
 
 
-
-function getblockingelems(table,id)
- blocking = {}
- for x = 1, #table[id].elems do
-  local e = table[id].elems[x]
-  if e[7] != nil then
-  	add(blocking,e)
-  end
- end
-
-
-return blocking
-
-end
 
 
 function draw_caveelems()
@@ -1304,73 +1328,16 @@ function draw_caveelems()
 end
 
 
-function draw_topmapelems()
-	for i=1,  #topitems do
-	    elem = topitems[i]
-	    drawsprite(elem[1],elem[2],
-     elem[3],false)
-	end
-end
-function draw_mapelems()
- topitems = {}
- if not (world=="overworld") then
-  if  (world=="cave") then
-  	draw_caveelems()
-  elseif towns[levelid] then
-   for n=1, towns[levelid].nr_of_elems do
-    elem =towns[levelid].elems[n] 
-    if elem[8]== false then
-     drawsprite(elem[1],elem[2],
-     elem[3],false)
-    else
-    add(topitems,elem)
-    end
-   end
-	 end
-	end
-
-end
-
-function updatemapinteracts()
-if not (world=="overworld")
-and (world=="cave")  then
-  for n=1,cavelevels[levelid].nr_of_elems do
-   local elem = cavelevels[levelid].elems[n] 
-   if (isplayerintersecting
-   (elem[2],elem[3]))
-    then
-   	 if  elem[4] and elem[5] then
-   	 levelid = elem[5]
-    	teleport(elem[4])
-    	break
-   	end
-   end
-  end
-elseif not (world=="overworld") then
-  for n=1,towns[levelid].nr_of_elems do
-   local elem = towns[levelid].elems[n] 
-   if (isplayerintersecting
-   (elem[2],elem[3])
-   )
-    then
-   	 if  elem[4] and elem[5] then
-   	 levelid = elem[5]
-    	teleport(elem[4])
-    	break
-   	end
-   end
-  end
-	end
-end
-
 function wipe(topbottom)
  if topbottom then
   for i=0, 10 do
+   newworld:draw()
   	rectfill(0,130,250,130-i*15,0)
   	wait(1)
  	end
 	else
  	 for i=0, 10 do
+ 	 newworld:draw()
   	rectfill(0,0,250,0+i*15,0)
   	wait(1)
  	end
@@ -1492,6 +1459,7 @@ function teleport(location)
 	end
 
 	if teleportworked then
+	
 		add(oldlocs,
 		{oldx,
 		oldy,
@@ -1503,6 +1471,9 @@ function teleport(location)
   oldcelw,
   oldcelh
 		})
+
+ newworld:switchworld(levelid)
+
 	end
 
 end
@@ -1520,69 +1491,9 @@ if flr(x+4) >= box[1]*8 then
 	return false
 end
 
-function processteleport()
- local x = can.x
- local y = can.y
- if world == "overworld" then
- 	x-=mapxoffset
- 	y-=mapyoffset
- else
-  x-=sx
-  x+=cellx*8
-  y-=sy
-  y+=celly*8 
- end
-
- if xywithin(x,y,outside_hoggsface) then
-  levelid = 1
-  teleport("town")
- elseif xywithin(x,y,outside_capitol_city) then
---  levelid = 3
---  teleport("town")
- elseif xywithin(x,y,outside_gratax) then
---  levelid = 4
---  teleport("town")
- elseif xywithin(x,y,outside_meagas) then
---  levelid = 5
---  teleport("town")
- elseif xywithin(x,y,outside_furlingshire) then
---  levelid = 6
---  teleport("town")  
- elseif xywithin(x,y,outside_terrakis) then
---  levelid = 7
---  teleport("town")   
- elseif xywithin(x,y,outside_jizzleknob) then
---  levelid = 8
---  teleport("town")   
- elseif xywithin(x,y,outside_cave) then
- levelid = 1
-  teleport("cave")
- elseif xywithin(x,y,outside_castle_belaroth) then
- levelid = 3
-  teleport("castle")
- elseif xywithin(x,y,outside_bat_cave)then
-  levelid = 4
-  teleport("cavern")
- end 
-end
 
 
-function drawmap()
- if world == "overworld" then
-  	map(0, 0,mapxoffset, mapyoffset, 128, 64 )
-			if mapnames_enabled then
- 			for s=1,#stringstodraw do
- 			 string = stringstodraw[s]
- 				print(string[1],string[2][1]+mapxoffset,string[2][2]+mapyoffset,0)
- 			end
-			end
- else
-  	map(cellx, celly, sx, sy,celw, celh)
 
-  
- end
- 
-end
 -->8
 -- lots of useful stuff here
 -- taken from harraps post:
@@ -1753,10 +1664,10 @@ function initnpcs()
  for n=nr_of_npcs+1,nr_of_npcs+copycount do 
   x = rnd(500)
   y = rnd(500)
-  while  (isblocked(x,y)) do
-		 x = rnd(500)
-   y = rnd(500)
-  end
+ // while  (isblocked(x,y)) do
+	//	 x = rnd(500)
+ //  y = rnd(500)
+ // end
  	npcs[n].x = x
   npcs[n].y = y
   local txt = generatecansentences()
@@ -1892,7 +1803,7 @@ function initnpcs()
  }
  npcs[9].interact = "talk"
  npcs[9].world = "tavern"
- npcs[9].lvlid = 2
+ npcs[9].lvlid = 3
  
  
     --usidore  
@@ -1907,7 +1818,7 @@ function initnpcs()
  }
  npcs[10].interact = "talk"
  npcs[10].world = "tavern"
- npcs[10].lvlid = 2
+ npcs[10].lvlid = 3
  
       --blemish  
  npcs[11].frames = {119,119,120,120}
@@ -1919,7 +1830,7 @@ function initnpcs()
  npcs[11].randommoves = true
  npcs[11].interact = "shop"
  npcs[11].world = "tavern"
- npcs[11].lvlid = 2
+ npcs[11].lvlid = 3
  npcs[11].storeid=1
  
 
@@ -1977,7 +1888,7 @@ function initnpcs()
  npcs[16].x= 103*8
  npcs[16].y= 26*8
  npcs[16].world = "castle"
- npcs[16].lvlid = 3 
+ npcs[16].lvlid = 4
  npcs[16].name = "raspberry\nberet"
  npcs[16].interact = "battle"
  npcs[16].path={
@@ -1988,7 +1899,7 @@ function initnpcs()
  npcs[17].x= 107*8
  npcs[17].y= 23*8
  npcs[17].world = "castle"
- npcs[17].lvlid = 3 
+ npcs[17].lvlid = 4
  npcs[17].name = "raspberry\nberet"
  npcs[17].interact = "battle"
  npcs[17].path={
@@ -2001,7 +1912,7 @@ function initnpcs()
  npcs[18].x= 91*8
  npcs[18].y= 59*8
  npcs[18].world = "cavern"
- npcs[18].lvlid = 4 
+ npcs[18].lvlid = 5
  npcs[18].name = "tomblain\nbelaroth"
  npcs[18].msg = ":\n i am preparing\n for the batdance "
  npcs[18].interact = "talk"
@@ -2102,6 +2013,34 @@ function intersect_f(x1,x2,y1,y2)
  return false
 end
 
+
+
+function intersect_box(x1,x2,y1,y2)
+ local max1 = {x1+8,y1+8}
+ local max2 = {x2+8,y2+8}
+   if 
+   --x intersect
+   ( ((x1<=x2) and (x2<=x1+8))
+   or  ((x2<=x1) and (x1<=x2+8))
+   )
+   and
+   (
+      ( ((y1<=y2) and (y2<=y1+8))
+   or  ((y2<=y1) and (y1<=y2+8))
+   )
+
+   )
+  then
+ 
+   return true
+  end
+ return false
+  --if x1 is not within x2 -> x2max
+  --and if x2 is not within x1->x1max
+end
+
+
+
 function arespritesintersecting(x1,y1,x2,y2,isplayer)
  x1 = getabsoluteposition(x1,y1,world,isplayer)
  y1 = x1[2]+4
@@ -2197,12 +2136,10 @@ function dorandommoves(sprite,player)
   	ymove = sprite.speed 
   end
 
-	 if not (isblocked(sprite.x+xmove,sprite.y+ymove)) 
-	 and not mapelem_blocking(world,levelid,sprite.x+4+xmove,sprite.y+ymove+4,false) 
-	 then
+	 if not (isblocked(sprite.x+xmove,sprite.y+ymove)) then
 	 	sprite.x +=xmove
 	 	sprite.y +=ymove
-	 	
+	 	--need blocking map elem check here
 	 elseif player and world == "overworld" and
 	  not (isblocked(sprite.x+xmove-mapxoffset,sprite.y+ymove-mapyoffset)) then
 
@@ -2289,11 +2226,11 @@ b3bbbb3b6556533333333333333565563566664554666653ffffffff1111111111c1c11111111111
 333333937777777777777777777777773332233bb332233bb3322333111111111111111111111111222222222222222222222222332442444424424444244233
 33333999c7777777c7777c77cc777cc7333223bbbb3223bbbb322333f111111111111c111111111f2eeeeeeeeeeeeeeeeeeeeee2324444222244442222444423
 66633444ccc77777ccc7ccc7ccccccc73333333bb333333bb3333333111111111111c1c111c111112ee2eee2eee2eeeeeeee2ee2244444244244442442444442
-444334047cccccccc7c77cc7ccccccc7333bb3bbbb3bb3bbbb3bb33311111111111111111c1c111f2ee2eee2eee2eeee2eee2ee2244222444422224444222244
-404222337cccc7ccc7c7ccccc7cccccc33bbbb3223bbbb3223bbbb33f11111111c1111111111111199e2eee2eee2eeee2eee2e99332442444424424444244233
+444334547cccccccc7c77cc7ccccccc7333bb3bbbb3bb3bbbb3bb33311111111111111111c1c111f2ee2eee2eee2eeee2eee2ee2244222444422224444222244
+454222337cccc7ccc7c7ccccc7cccccc33bbbb3223bbbb3223bbbb33f11111111c1111111111111199e2eee2eee2eeee2eee2e99332442444424424444244233
 111555337c7cc7ccc7c7cc7cc7cccc7c333bb332233bb332233bb33311111111c1c111111111111f092eeee2eee2eeee2eeee290324444244244442442444423
-444505337c7cc7ccccc7cc7cc7cccc7c33bbbb3333bbbb3333bbbb331111111111111111111111110099eeeeeeeeeeeeeeee9900244444422444444224444442
-40433333cc7cccc7cccccccccccccccc333223333332233333322333f11f1f1111f11f1f11f11f1f000999999999999999999000244444424444444424444442
+444515337c7cc7ccccc7cc7cc7cccc7c33bbbb3333bbbb3333bbbb331111111111111111111111110099eeeeeeeeeeeeeeee9900244444422444444224444442
+45433333cc7cccc7cccccccccccccccc333223333332233333322333f11f1f1111f11f1f11f11f1f000999999999999999999000244444424444444424444442
 b332233b3b3b3333333333333334443333333333333444333334443333344433dd5dd5555dddddd5443333333333334433344333333333443334443344333333
 bb3223bb33b33333333b3b3333344433333b3b33333444333334443333344433dd5555d55dd66dd5444333333333344433344333333334443334443344433333
 b333333b333333333333b333333444333333b3333334443333344433333444335555d5d556dddd65344433333333444333344333333344433334443334443333
@@ -2423,7 +2360,7 @@ __map__
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f12123b120d2f123b121d1e1f10303026121d1e1e6b6c1e1e1e0e0f120405060405061221231d1e1f1223243030261818180d1e1e1e1e1e1e1f181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464645353535353535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f123d120d1e123b12121d1e2f252526121224252612241d1e1e1e1f12040d0f30302612120d1e1e2f1204123030261818181d1e1e1e1e1e1e1e0f1818181818000000000000000000000000000000000000000000003838383838383838383838383838536464646464646464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f12330d2f123b12120d1e2f12121212121c3131311a121d1e1e1e1f121d1e1e0e0e0f200d2e2e2f120430303025261818181d10101e1e1e1e2f18181818181800000000000000000000000000000000000000000000383838380a3838380a3838383838536464646464646464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120430123a12201d1e1f121d1e1f16162f0d1e0f12141530303026181818180d1e3030102e2e2e2f181818181818000000000000000000000000000000000000000000003838383839383838393838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120430123a12121d1e1f121d1e1f16162f0d1e0f12141530303026181818180d1e3030102e2e2e2f181818181818000000000000000000000000000000000000000000003838383839383838393838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e12123a3d12120d1e2f12123b123e3b121204303030123a3c04100b121d1e1f07161616162d0f121212122618180d0e0e1e1030252506181818181818181818000000000000000000000000000000000000000000003838383839383838393838383838535353535353537171535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0f123a12122d2f12123b1212121212303030303012123a24300b120b101617080809162d1e0e0e0e0f1b18122d6b6c2f25261212181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353537171535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f123a121212123b120d0d0f123030303030303012123f240b120b2616271b121916122d2e2e2e2f1818121212121212121218181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
