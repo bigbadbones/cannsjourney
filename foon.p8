@@ -47,7 +47,7 @@ function _init()
  sentence  = ""
  menuid = 1
  selectid = 1
- levelid = 0
+ levelid = 1
  
  menuscreen ={}
  
@@ -103,8 +103,8 @@ function _init()
 	sy = 25
 	celw = 12
 	celh = 6	
-	mapxoffset = -8 * 29
-	mapyoffset = -8 * 16
+	mapxoffset = -8 * 55
+	mapyoffset = -8 * 18
 	world="overworld"
 
  inittext()
@@ -739,10 +739,7 @@ function handleinputs_dialogue()
 end
 ----------- world -----------
 
-function draw_worldscreen()
-  cls()
- 	newworld:draw()
- 	drawnpcs() 
+function drawplayer()
   pal()
   
   if (statuseffects.redpotion[1]==true) then
@@ -752,6 +749,16 @@ function draw_worldscreen()
   end
   spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
   pal()
+
+end
+
+
+function draw_worldscreen()
+  cls()
+ 	newworld:draw(0)
+ 	drawnpcs() 
+  drawplayer()
+ 	newworld:draw(1)
  end
 
 function canmovementblocked(xoff,yoff)
@@ -819,6 +826,7 @@ function handleinputs_worldscreen()
 
   local l =  getabsoluteposition(can.x,can.y,world,true)
   newworld:touch(l[1],l[2])
+  justtele = false
 
 end
 
@@ -1101,7 +1109,7 @@ blocking_interacts = {}
 topitems = {}
 nr_of_towns =8
 towns ={}
-
+justtele = false
 nr_of_cavelevels =4
 
 caveids={{113,23},{113,39},{113,7},{98,48}}
@@ -1139,21 +1147,22 @@ worldmap.lvls = {}
 function worldmap:blocked(x,y)
 	return self.currworld:blocked(x,y)
 end
-function worldmap:draw()
-   if world == "overworld" then
+function worldmap:draw(lvl) 
+ if lvl == 0 then
+  if world == "overworld" then
   	map(0, 0,mapxoffset, mapyoffset, 128, 64 )
-			if mapnames_enabled then
+		 if mapnames_enabled then
  			for s=1,#stringstodraw do
  			 string = stringstodraw[s]
  				print(string[1],string[2][1]+mapxoffset,string[2][2]+mapyoffset,0)
  			end
 			end
- else
+  else
   	map(cellx, celly, sx, sy,celw, celh)
-
-  
+  end
  end
-  self.currworld:draw()
+ self.currworld:draw(lvl)
+
 end
 function worldmap:touch(x,y)
   self.currworld:touch(x,y)
@@ -1174,10 +1183,12 @@ function lvlmap:blocked(xin,yin)
  end
  return false
 end
-function lvlmap:draw()
+function lvlmap:draw(lvl)
  for i = 1, #self.elems do
  local l = self.elems[i]
-  drawsprite(l.sprite,l.loc[1],l.loc[2])
+  if l.drawlvl == lvl then
+  	drawsprite(l.sprite,l.loc[1],l.loc[2])
+ 	end
  end
 end
 function lvlmap:addblockingelem(sprite,x,y)
@@ -1202,6 +1213,59 @@ function lvlmap:addtown(x,y,tele)
  m.tele = tele
  add(self.elems,m)
 end
+function lvlmap:addcastle(x,y,tele)
+ m1 = copy(mapelem)
+ m2 = copy(mapelem)
+ m1.sprite = 20
+ m2.sprite = 21
+ m1.loc = {x,y}
+ m1.tele = tele
+ m2.loc = {x+8,y}
+ m2.tele = tele 
+ add(self.elems,m1)
+ add(self.elems,m2)
+end
+function lvlmap:addexit(x,y,lvl)
+ m1 = copy(mapelem)
+ m1.sprite = 67
+ m1.loc = {x,y}
+ m1.tele = {"exit",lvl}
+ m2 = copy(mapelem)
+ m2.sprite = 67
+ m2.loc = {x+8,y}
+ m2.tele = {"exit",lvl}
+  add(self.elems,m1)
+ add(self.elems,m2)
+
+end
+
+function lvlmap:addspseries(x,y,sp,width,lvl)
+	for i = 1, width do
+ 	m = copy(mapelem)
+	 m.sprite = sp
+  m.loc = {x,y}
+  m.drawlvl = lvl
+  add(self.elems,m)
+  sp+=1
+  x+=8
+ end
+end
+function lvlmap:addcolumn(x,y,height)
+	for i = 1, height-1 do
+ 	m = copy(mapelem)
+	 m.sprite = 57
+  m.loc = {x,y}
+  m.drawlvl = 1
+  add(self.elems,m)
+  y-=8
+ end
+ 	m = copy(mapelem)
+	 m.sprite = 10
+  m.loc = {x,y}
+  m.drawlvl = 1
+  add(self.elems,m)
+end
+
 
 mapelem = {}
 mapelem.loc = {0,0}
@@ -1209,12 +1273,25 @@ mapelem.sprite = 1
 mapelem.tele = {nil,nil}
 mapelem.block = false
 mapelem.drawlvl = 0
+
 function mapelem:touch()
-	 if (self.tele[1]!=nil) and
-	 (self.tele[2]!=nil) then
-	  levelid = self.tele[2]
-   teleport(self.tele[1])
-   end 
+//if self.tele!=nil then
+	if (self.tele[1]!=nil) and
+	(self.tele[2]!=nil) then
+ 	  //levelid = self.tele[2]	  
+		if self.tele[1] == "exit" then
+			if not justtele then
+				justtele = true
+			else
+				return
+			end
+		end
+ 
+  teleport(self.tele[1])
+  levelid = self.tele[2]
+  	  
+  newworld:switchworld(levelid)
+	end
 end
 
 
@@ -1225,25 +1302,36 @@ function create_world()
  tavern  =  copy(lvlmap)
  overworld = copy(lvlmap)
  newworld = copy(worldmap)
-
+ belaroth = copy(lvlmap)
 
  tavern_m = copy(mapelem)
- tavern_m.loc ={98*8,003*8}
+ tavern_m.loc ={99*8,003*8}
  tavern_m.sprite = 114
  tavern_m.tele = {"tavern",3}
+ 
+ belaroth:addspseries(104*8,27*8,42,3,1)
+ belaroth:addspseries(104*8,20*8,42,3,1)
+ belaroth:addcolumn(107*8,21*8,2)
+ belaroth:addcolumn(103*8,21*8,2)
+ belaroth:addcolumn(103*8,28*8,2)
+ belaroth:addcolumn(107*8,28*8,2)
+
  add(hogsface.elems,tavern_m)
  
  overworld:addtown(37*8,21*8,{"town",2})
+ overworld:addcastle(64*8,26*8,{"castle",4})
+
 
  hogsface:addblockingelem(98,103*8,4*8)
- tavern:addblockingelem(98,103*8,4*8)
+ tavern:addexit(99*8,15*8,2)
+ hogsface:addexit(98*8,7*8,1)
+ belaroth:addexit(104*8,33*8,1)
+ belaroth:addexit(105*8,33*8,1)
 
- 
  newworld.lvls[1]  = overworld
  newworld.lvls[2]  = hogsface
  newworld.lvls[3]  = tavern
- newworld.lvls[4]  = tavern
-  
+ newworld.lvls[4]  = belaroth  
  newworld.currworld = newworld.lvls[1]
 
 
@@ -1257,55 +1345,7 @@ function init_mapelems()
 create_world()
 
 init_cavelems()
- for n=1,nr_of_towns do 
-  add(towns,{})
-  towns[n].nr_of_elems = 0
-  towns[n].nr_of_interacts=0
-   towns[n].elems=
- 	{
-   {67,98*8,7*8,"exit",4,false,nil,false},
-  	{67,99*8,7*8,"exit",4,false,nil,false}
- 	}
- end
- 
- --hogsface towns[1].nr_of_elems =4
-// add(towns[1].elems,{114,98*8,003*8,"tavern",2,false,nil,false})
- //add(towns[1].elems, {98,103*8,004*8,nil,nil,false,true,false})
 
- --tavern
- 
- towns[2].nr_of_elems = 0
- towns[2].elems ={}
-// add(towns[2].elems, {112,96*8,12*8,nil,nil,false,true,false})
-// add(towns[2].elems, {126,105*8,12*8,nil,nil,false,true,false})
-// add(towns[2].elems, {126,104*8,12*8,nil,nil,false,true,false})
-// add(towns[2].elems, {126,103*8,12*8,nil,nil,false,true,false})
--- add(towns[2].elems, {126,102*8,12*8,nil,nil,false,true,false})
--- add(towns[2].elems, {67,99*8,15*8,"exit",1,false,nil,false})
--- add(towns[2].elems, {67,100*8,15*8,"exit",1,false,nil,false})
-
- --castle
- towns[3].nr_of_elems = 0
- towns[3].elems =
- {
- --{42,104*8,20*8,nil,1,false,nil,true},
--- {43,105*8,20*8,nil,1,false,nil,true},
- --{44,106*8,20*8,nil,1,false,nil,true},
--- {42,104*8,27*8,nil,1,false,nil,true}
--- {43,105*8,27*8,nil,1,false,nil,true},
--- {44,106*8,27*8,nil,1,false,nil,true},
--- {67,104*8,33*8,"exit",4,false,nil,false},
--- {67,105*8,33*8,"exit",4,false,nil,false},
--- {67,106*8,33*8,"exit",4,false,nil,false} }
-}
-
- --castle
- towns[4].nr_of_elems = 0
- towns[4].elems =
- {
-// {67,90*8,62*8,"exit",4,false,nil,false},
- //{67,91*8,62*8,"exit",4,false,nil,false}
-  }
 
 end
 
@@ -1331,13 +1371,13 @@ end
 function wipe(topbottom)
  if topbottom then
   for i=0, 10 do
-   newworld:draw()
+   draw_worldscreen()
   	rectfill(0,130,250,130-i*15,0)
   	wait(1)
  	end
 	else
  	 for i=0, 10 do
- 	 newworld:draw()
+ 	 draw_worldscreen()
   	rectfill(0,0,250,0+i*15,0)
   	wait(1)
  	end
@@ -1383,7 +1423,6 @@ function teleport(location)
    celh  = loc[9]
    if world == "overworld" then
    	mapyoffset-=8
-   	levelid = 0
    else
    can.y+=8
    end
@@ -1472,8 +1511,7 @@ function teleport(location)
   oldcelh
 		})
 
- newworld:switchworld(levelid)
-
+ 
 	end
 
 end
@@ -1639,7 +1677,7 @@ function initnpcs()
   npcs[n].frames = {64,65,66}
   npcs[n].frameid = 1
   npcs[n].speed = 0.5
-  npcs[n].lvlid = 0
+  npcs[n].lvlid = 1
   npcs[n].x = 19*8
   npcs[n].y = 15*8
   npcs[n].randommoves = false
@@ -1880,7 +1918,7 @@ function initnpcs()
  npcs[15].name = "good king belaroth" 
  npcs[15].interact = "talk"
  npcs[15].msg = ":\nhowdy"
- npcs[15].lvlid = 3
+ npcs[15].lvlid = 4
  npcs[15].path={
  {105*8,24*8}
  } 
@@ -2359,15 +2397,15 @@ __map__
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b120d1e123b1d1e1e1e103030260d1e0e0e0e0e0e0f1616160406122123121201011d1e1f210104101006181818181d1e1e1e1e1e0f181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464646464646464646464646464
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f12123b120d2f123b121d1e1f10303026121d1e1e6b6c1e1e1e0e0f120405060405061221231d1e1f1223243030261818180d1e1e1e1e1e1e1f181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464645353535353535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f123d120d1e123b12121d1e2f252526121224252612241d1e1e1e1f12040d0f30302612120d1e1e2f1204123030261818181d1e1e1e1e1e1e1e0f1818181818000000000000000000000000000000000000000000003838383838383838383838383838536464646464646464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f12330d2f123b12120d1e2f12121212121c3131311a121d1e1e1e1f121d1e1e0e0e0f200d2e2e2f120430303025261818181d10101e1e1e1e2f18181818181800000000000000000000000000000000000000000000383838380a3838380a3838383838536464646464646464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120430123a12121d1e1f121d1e1f16162f0d1e0f12141530303026181818180d1e3030102e2e2e2f181818181818000000000000000000000000000000000000000000003838383839383838393838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f12330d2f123b12120d1e2f12121212121c3131311a121d1e1e1e1f121d1e1e0e0e0f200d2e2e2f120430303025261818181d10101e1e1e1e2f181818181818000000000000000000000000000000000000000000003838383838383838383838383838536464646464646464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120430123a12121d1e1f121d1e1f16162f0d1e0f12141530303026181818180d1e3030102e2e2e2f181818181818000000000000000000000000000000000000000000003838383838383838383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e12123a3d12120d1e2f12123b123e3b121204303030123a3c04100b121d1e1f07161616162d0f121212122618180d0e0e1e1030252506181818181818181818000000000000000000000000000000000000000000003838383839383838393838383838535353535353537171535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0f123a12122d2f12123b1212121212303030303012123a24300b120b101617080809162d1e0e0e0e0f1b18122d6b6c2f25261212181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353537171535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f123a121212123b120d0d0f123030303030303012123f240b120b2616271b121916122d2e2e2e2f1818121212121212121218181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f10100f123f12123b120d1e1e2f0f04303030303030300633120b120b061616272829160406121b12121812120405050506121218181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f24262d0f3312123a12122d1e1010303030303030303026330d1e1e1f24061616161616042612121212181212243030302614151212181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
-1e1e1e1e1e1e1e1e1e1e101e1e1e1e123a12123c1212123a12122d0f303030303030303030263e0b14150b1224050505050526121212121218201212122426121233121218181818181818181800000000000000000000000000000000000000000000383838380a380c380a3838383838535353535353536464535353535353
-1e1e1e1e1e1e1e1e1e10301e1e1e1e06123f3b12120d0f123a12121e1f242525252525252526123a202012121212121212121212121c3131313131313131313131371218181818181818181818000000000000000000000000000000000000000000003838383839380c38393838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f24262d0f3312123a12122d1e1010303030303030303026330d1e1e1f24061616161616042612121212181212243030302612121212181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e1e101e1e1e1e123a12123c1212123a12122d0f303030303030303030263e0b14150b12240505050505261212121212182012121224261212331212181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e10301e1e1e1e06123f3b12120d0f123a12121e1f242525252525252526123a202012121212121212121212121c3131313131313131313131371218181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1f103030102d1e2430063312120d1f1415123f122d1e0e0e0e0e0e0e0f1b0406123a12121212121212121212123b120406121212121212121818181818181818181818181818000000000000000000000000000000000000000000003838383839380c38393838383838535353535353536464535353535353
 1e1e1e1e1e1e1f10303030051d1e1f302633120d1e1f1231123e12122d1e1e1e1e1e1e2f12043026123a1212121212121212123d12040506181818181818181818181818181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
 1e1e1e1e1e1e1f30303030061d1e1f302633122d1e1e0e0e0f123a12122d1e1e1e1e2f121224252612123a31313131313131313612121212181818181818181818181818181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
