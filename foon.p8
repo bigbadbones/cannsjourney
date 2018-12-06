@@ -28,6 +28,14 @@ function _init()
 
 
 
+magic_anim = copy(battle_anim)
+magic_anim.audio = 17
+magic_anim.slides = {85,86}
+
+attack_anim = copy(battle_anim)
+attack_anim.audio = 16
+attack_anim.slides = {69,70}
+
 
  money = 100
  copycount = 10
@@ -103,8 +111,13 @@ function _init()
 	sy = 25
 	celw = 12
 	celh = 6	
-	mapxoffset = -8 * 55
-	mapyoffset = -8 * 18
+
+ //hogsface	
+	mapxoffset = -8 * 25
+	mapyoffset = -8 * 18	
+	//belaroth
+//	mapxoffset = -8 * 55
+	//mapyoffset = -8 * 18
 	world="overworld"
 
  inittext()
@@ -169,8 +182,10 @@ function isblocked(x,y)
 end
 
 function getabsoluteposition(x,y,worldid,player)
+
 local x2 = x
 local y2 = y
+if player then
 local mxo = mapxoffset
 local myo = mapyoffset
 if player then
@@ -184,7 +199,7 @@ end
   x2 =	((x/8+cellx) *8)-sx
   y2 = ((y/8+celly) *8)-sy
  end
-
+end
 
 return ({x2,y2})
 
@@ -229,15 +244,15 @@ function updatesprite(sprite)
 end
 
 function _update()
- cls()
- if not animation_ongoing then
-
+ 
   if gamestate == 0 then
   	handleinputs_titlescreen()
   elseif gamestate == 1 then
+
   	handleinputs_worldscreen()
   	
   elseif gamestate == 2 then
+
    handleinputs_menuscreen()
   elseif gamestate == 3 then
   	handleinputs_battlescreen()
@@ -246,18 +261,13 @@ function _update()
   	 --noop
   elseif gamestate ==5 then
   	handleinputs_dialogue()
-  end
  end
 end
 
 
 function _draw()
- cls()
- print("hello!",0,0,10)
 
- if animation_ongoing then
- 	animate()
- else
+
  	if gamestate==0 then
  		draw_titlescreen()
   elseif (gamestate==1) then
@@ -270,10 +280,7 @@ function _draw()
    draw_gameover()
   elseif gamestate ==5 then
    draw_dialogue()
-   end
- end
-// l =  getabsoluteposition(can.x,can.y,world,true)
-// print(l[1]..','..l[2],10,50,10)
+  end
 // print(chunt.loc[1]..','..chunt.loc[2],10,75,10)
  //print(intersect_box(l[1],chunt.loc[1],l[2],chunt.loc[2]),0,0,10)
 
@@ -325,76 +332,76 @@ function inittext()
  "cursed",
  "cooked dinner with",
  "charmed the \ninlaws with",
--- "ignored",
--- "went out \nclubbing with",
--- "embarked on \na quest with",
--- "couldn't remember",
--- "am really foggy about",
--- "struggled to \nthink about",
--- "pretended to \nknow about",
--- "entombed",
--- "set a trap for",
--- "assasinated",
--- "knighted",
--- "embalmed",
--- "annointed",
+ "ignored",
+ "went out \nclubbing with",
+ "embarked on \na quest with",
+ "couldn't remember",
+ "am really foggy about",
+ "struggled to \nthink about",
+ "pretended to \nknow about",
+ "entombed",
+ "set a trap for",
+ "assasinated",
+ "knighted",
+ "embalmed",
+ "annointed",
  "made fun of"}
  nouns = {
--- "a great rock",
--- "many houseflies",
--- "an evil sigil",
--- "a dragon",
--- "arnie", 
--- "usidore",
--- "a cockatrice",
--- "a eunuch",
--- "a shapeshifter",
--- "a genie",
--- "dripfang",
--- "blemish",
--- "activia",
--- "an evil spider",
--- "the cavern \nof many tomorrows",
--- "the population\nof hawai",
--- "the waving woman",
--- "some tourists",
--- "an innkeeper",
--- "a stablekeeper",
--- "a milkmaid",
--- "a tax collector",
--- "a corsair",
--- "a brigand",
--- "momo",
--- "a talking flower",
--- "a sheriff",
--- "a blue tiger",
--- "a memory gremlin",
--- "arnor",
--- "larry birdman",
--- "a soulwalker",
--- "a pinglet",
--- "mayor manana",
--- "an evil skeleton",
--- "dq",
--- "a mimic",
--- "chunt",
--- "spintax", 
--- "wheelbear",
--- "cockroach clown",
- --"twosidore",
- --"a slime",
--- "a vampire",
--- "a hunger ghost",
--- "6 werewolves",
--- "a sphere of \n solid buttholes",
--- "an innocent shopkeeper",
--- "a tavern wench",
--- "an elderdly scholar",
--- "a thousand bees", 
--- "the pyramid of confusion",
--- "a harpie",
- --"the hottest shark \ni've ever seen",
- --"otak barleyfoot",
+ "a great rock",
+ "many houseflies",
+ "an evil sigil",
+ "a dragon",
+ "arnie", 
+ "usidore",
+ "a cockatrice",
+ "a eunuch",
+ "a shapeshifter",
+ "a genie",
+ "dripfang",
+ "blemish",
+ "activia",
+ "an evil spider",
+ "the cavern \nof many tomorrows",
+ "the population\nof hawai",
+ "the waving woman",
+ "some tourists",
+ "an innkeeper",
+ "a stablekeeper",
+ "a milkmaid",
+ "a tax collector",
+ "a corsair",
+ "a brigand",
+ "momo",
+ "a talking flower",
+ "a sheriff",
+ "a blue tiger",
+ "a memory gremlin",
+ "arnor",
+ "larry birdman",
+ "a soulwalker",
+ "a pinglet",
+ "mayor manana",
+ "an evil skeleton",
+ "dq",
+ "a mimic",
+ "chunt",
+ "spintax", 
+ "wheelbear",
+ "cockroach clown",
+ "twosidore",
+ "a slime",
+ "a vampire",
+ "a hunger ghost",
+ "6 werewolves",
+ "a sphere of \n solid buttholes",
+ "an innocent shopkeeper",
+ "a tavern wench",
+ "an elderdly scholar",
+ "a thousand bees", 
+ "the pyramid of confusion",
+ "a harpie",
+ "the hottest shark \ni've ever seen",
+ "otak barleyfoot",
  "tomblain belaroth",
  "the dark lord",
  "bob johnson",
@@ -413,12 +420,12 @@ function inittext()
  "a lucky scarab",
  "an evil rooster",
  "good king belaroth",
--- "a flock of birds",
--- "a single starling",
--- "a cricket",
--- "a she-goat",
--- "a great red stag",
--- "a tiger with 10 eyes",
+ "a flock of birds",
+ "a single starling",
+ "a cricket",
+ "a she-goat",
+ "a great red stag",
+ "a tiger with 10 eyes",
  "the entire faculty of \n jizzleknob prep",
  "the dark blade of infinite",
  "the shroud of holy noise",
@@ -473,42 +480,33 @@ battlestats[1].defense = .5
 
 battlestats[2] ={}
 
+battle_anim = {}
+battle_anim.running = false
+battle_anim.lastupdate = nil
+battle_anim.duration = .2
+battle_anim.audio = nil
+battle_anim.slides = {69,70}
+battle_anim.location = {0,0}
+battle_anim.index = 1
 
 
 function attack(idsource,iddest)
+ win = false
 	source = battlestats[idsource]
 	dest = battlestats[iddest]
 	damage =  source.attack * dest.defense
 	dest.hp -= damage
-    start_animation(attack_anim,iddest)
-	battleturn =  not battleturn
-	if dest.hp <0 then dest.hp = 0 
-	 return true 
-	else return false
+	if dest.hp <0 then 
+		dest.hp = 0 
+		win = true
 	end
+ start_animation(attack_anim,iddest)
+	battleturn =  not battleturn
+ return win
 end
 
 
-attack_anim = {}
-attack_anim.running = false
-attack_anim.lastupdate = nil
-attack_anim.duration = .2
-attack_anim.audio = 16
-attack_anim.slides = {69,70}
-attack_anim.location = {0,0}
-attack_anim.index = 1
 
-
-
-
-magic_anim = {}
-magic_anim.running = false
-magic_anim.lastupdate = nil
-magic_anim.duration = .2
-magic_anim.audio = 17
-magic_anim.slides = {85,86}
-magic_anim.location = {0,0}
-magic_anim.index = 1
 
 
 function wait(a) for i = 1,a do flip() end end
@@ -528,17 +526,26 @@ else
 end
  a.index = 1
  a.location = {loc[1],loc[2]}
-	animation = a
-	if a.audio then 
-		sfx(a.audio) 
-	end
-	spr(a.slides[a.index],
-	a.location[1],
-	a.location[2])
-	
-	animation.lastupdate = time()
- animation.index+=1
+	animation = a	
 	animation_ongoing = true
+	 if(animation_ongoing) then
+ 	if animation.audio then 
+ 		sfx(animation.audio) 
+ 	end
+ 	
+ 	for i = 1, #animation.slides do
+   draw_battlescreen()
+   
+   spr(animation.slides[animation.index],
+   animation.location[1],
+   animation.location[2])
+   
+   animation.index+=1
+   wait(5)
+ 	end
+ 	draw_battlescreen()
+ 	animation_ongoing = false
+ end
 end
 
 
@@ -546,19 +553,6 @@ end
 
 function animate()
 
-if time() - animation.lastupdate 
- >=animation.duration then
- if animation.index>#animation.slides then
- 	animation_ongoing = false
-	else
- spr(animation.slides[animation.index],
- animation.location[1],
- animation.location[2])
- 
- animation.lastupdate = time()
- animation.index+=1
- end
-	end
 end
 
 ----------- title -----------
@@ -713,7 +707,6 @@ end
 
 
 function draw_dialogue()
- draw_worldscreen()
  rectfill(0,90,127,127,7)
  rect(0,90,127,127,6)
  print(dialogue,20,95,0)
@@ -777,6 +770,7 @@ return blocked
 end
 
 function handleinputs_worldscreen()
+  justtele = false
   updatenpcs()
   yadjust = 0
   xadjust = 0
@@ -826,7 +820,6 @@ function handleinputs_worldscreen()
 
   local l =  getabsoluteposition(can.x,can.y,world,true)
   newworld:touch(l[1],l[2])
-  justtele = false
 
 end
 
@@ -855,6 +848,7 @@ function draw_battlescreen()
  print("!!battle!!",50,10,7)
  draw_battle_art()
 	draw_battlemenu()
+//	animate()
 end
 
 
@@ -1030,6 +1024,7 @@ end
 
 
 function magic (idsource,iddest)
+	win = false
 	source = battlestats[idsource]
 	dest = battlestats[iddest]
 	damage =  source.magic * dest.defense
@@ -1038,12 +1033,13 @@ function magic (idsource,iddest)
 	if source.mp<0 then
 		source.mp = 0
 	end
+	if dest.hp <0 then 
+		dest.hp = 0 
+		win = true
+	end
  start_animation(magic_anim,iddest)
 	battleturn =  not battleturn
-	if dest.hp <0 then dest.hp = 0 
-	 return true 
-	else return false
-	end
+	return win
 end
 
 function gameover()
@@ -1065,10 +1061,6 @@ function enemyturn()
  end
 end
 function draw_battlemenu()
- if (battleturn == true)
- then
-	 enemyturn()
- end
 	rect (1,90,125,125,10)
 	print("attack",25,95,10)
 	print("spell",25,105,10)
@@ -1076,8 +1068,13 @@ function draw_battlemenu()
 	drawarrow(15,87+10*battleselect,10)
 end
 
+
+
 function handleinputs_battlescreen()
-  
+  if (battleturn == true)
+  then
+ 	 enemyturn()
+  end
   if btnp(2) and battleselect!=1  then
   	sfx(18)
   	battleselect-=1
@@ -1094,21 +1091,8 @@ function handleinputs_battlescreen()
 
 end
 -->8
-
-outside_capitol_city = {40,28,41,28}
-outside_gratax = {43,46,43,46}
-outside_meagas = {46,34,46,34}
-outside_castle_belaroth = {64,26,65,26}
-outside_bat_cave = {60,23,61,23}
-
-outside_furlingshire = {31,34,37,34}
-outside_terrakis = {22,29,23,29}
-outside_jizzleknob = {52,21,53,21}
-outside_cave = {34,18,35,18}
 blocking_interacts = {}
 topitems = {}
-nr_of_towns =8
-towns ={}
 justtele = false
 nr_of_cavelevels =4
 
@@ -1236,17 +1220,22 @@ function lvlmap:addexit(x,y,lvl)
  m2.tele = {"exit",lvl}
   add(self.elems,m1)
  add(self.elems,m2)
-
 end
 
-function lvlmap:addspseries(x,y,sp,width,lvl)
+function lvlmap:addspseries(x,y,sp,width,lvl, blocking, repeatflag,tele)
 	for i = 1, width do
  	m = copy(mapelem)
 	 m.sprite = sp
   m.loc = {x,y}
+  m.block = blocking
   m.drawlvl = lvl
+  if tele then
+  	m.tele = tele
+  end
   add(self.elems,m)
-  sp+=1
+  if not repeatflag then
+  	sp+=1
+  end
   x+=8
  end
 end
@@ -1275,22 +1264,17 @@ mapelem.block = false
 mapelem.drawlvl = 0
 
 function mapelem:touch()
-//if self.tele!=nil then
 	if (self.tele[1]!=nil) and
-	(self.tele[2]!=nil) then
- 	  //levelid = self.tele[2]	  
-		if self.tele[1] == "exit" then
-			if not justtele then
+	(self.tele[2]!=nil) then  
+	
+	
+	  if not justtele then
 				justtele = true
-			else
-				return
+				teleport(self.tele[1], self.tele[2])
+    levelid = self.tele[2] 	  
+    newworld:switchworld(levelid)
 			end
-		end
  
-  teleport(self.tele[1])
-  levelid = self.tele[2]
-  	  
-  newworld:switchworld(levelid)
 	end
 end
 
@@ -1298,23 +1282,45 @@ end
 
 function create_world()
 
- hogsface = copy(lvlmap)
- tavern  =  copy(lvlmap)
+ hogsface  = copy(lvlmap)
+ tavern    = copy(lvlmap)
  overworld = copy(lvlmap)
- newworld = copy(worldmap)
- belaroth = copy(lvlmap)
+ newworld  = copy(worldmap)
+ belaroth  = copy(lvlmap)
+
+
+ cave1      = copy(lvlmap)
+ cave1:addspseries(120*8,23*8,101,2,0,false,false,{"cave",6})
+ cave1:addexit(120*8,38*8,1)
+
+ cave2      = copy(lvlmap)
+ cave2:addspseries(120*8,39*8,101,2,0,false,false,{"cave",7})
+ cave2:addexit(120*8,54*8,5)
+ 
+ cave3      = copy(lvlmap)
+ cave3:addspseries(120*8,07*8,101,2,0,false,false,{"cave",8})
+ cave3:addexit(120*8,22*8,6)
+  
+ cave4      = copy(lvlmap)
+ cave4:addexit(105*8,63*8,7)
+
+
+
 
  tavern_m = copy(mapelem)
  tavern_m.loc ={99*8,003*8}
  tavern_m.sprite = 114
  tavern_m.tele = {"tavern",3}
  
- belaroth:addspseries(104*8,27*8,42,3,1)
- belaroth:addspseries(104*8,20*8,42,3,1)
+ belaroth:addspseries(104*8,27*8,42,3,1,false)
+ belaroth:addspseries(104*8,20*8,42,3,1,false)
  belaroth:addcolumn(107*8,21*8,2)
  belaroth:addcolumn(103*8,21*8,2)
  belaroth:addcolumn(103*8,28*8,2)
  belaroth:addcolumn(107*8,28*8,2)
+
+
+ overworld:addspseries(34*8,18*8,107,2,0,false,false,{"cave",5})
 
  add(hogsface.elems,tavern_m)
  
@@ -1324,6 +1330,11 @@ function create_world()
 
  hogsface:addblockingelem(98,103*8,4*8)
  tavern:addexit(99*8,15*8,2)
+ tavern:addspseries(101*8,12*8,126,5,0,true,true)
+ tavern:addblockingelem(112,96*8,12*8)
+ tavern:addblockingelem(112,98*8,10*8)
+ tavern:addblockingelem(112,105*8,13*8)
+
  hogsface:addexit(98*8,7*8,1)
  belaroth:addexit(104*8,33*8,1)
  belaroth:addexit(105*8,33*8,1)
@@ -1331,7 +1342,11 @@ function create_world()
  newworld.lvls[1]  = overworld
  newworld.lvls[2]  = hogsface
  newworld.lvls[3]  = tavern
- newworld.lvls[4]  = belaroth  
+ newworld.lvls[4]  = belaroth 
+ newworld.lvls[5]  = cave1  
+ newworld.lvls[6]  = cave2   
+ newworld.lvls[7]  = cave3
+ newworld.lvls[8]  = cave4   
  newworld.currworld = newworld.lvls[1]
 
 
@@ -1394,7 +1409,7 @@ function circlewipe()
 
 end
 
-function teleport(location)
+function teleport(location,newloc)
  oldx = can.x
  oldy = can.y
  oldworld = world
@@ -1485,8 +1500,8 @@ function teleport(location)
  elseif location =="cave" then
   sfx(22)
   wipe(true)
- 	cellx = caveids[levelid][1]
- 	celly = caveids[levelid][2]
+ 	cellx = caveids[newloc-4][1]
+ 	celly = caveids[newloc-4][2]
  	sx = 0
  	sy = 0
  	celw = 20
@@ -1666,46 +1681,46 @@ function kill(id)
  npcs[id].interact = "talk"
  
 end
-
-
+  npc = {}
+  npc.frames = {64,65,66}
+  npc.frameid = 1
+  npc.speed = 0.5
+  npc.lvlid = 1
+  npc.x = 19*8
+  npc.y = 15*8
+  npc.randommoves = false
+  npc.path={{{19*8,15*8}}}
+  npc.futurepath = {}
+  npc.faceleft = false
+  npc.msg = ""
+  npc.name = ""
+  npc.msgyoffset = 0
+  npc.msgxoffset = 0
+  npc.battlestats = {}
+  npc.interact = "battle"
+  npc.world = "overworld"
+  npc.battlestats.attack = 5
+  npc.battlestats.magic = 5
+  npc.battlestats.defense = .75
+  npc.battlestats.hp = 100
+  npc.battlestats.mp = 100
+  npc.alive = true
 function initnpcs()
  nr_of_npcs = 18
  npcs ={}
  intersecting = {}
  for n=1,nr_of_npcs+copycount do 
-  add(npcs,{})
-  npcs[n].frames = {64,65,66}
-  npcs[n].frameid = 1
-  npcs[n].speed = 0.5
-  npcs[n].lvlid = 1
-  npcs[n].x = 19*8
-  npcs[n].y = 15*8
-  npcs[n].randommoves = false
-  npcs[n].path={{{19*8,15*8}}}
-  npcs[n].futurepath = {}
-  npcs[n].faceleft = false
-  npcs[n].msg = ""
-  npcs[n].name = ""
-  npcs[n].msgyoffset = 0
-  npcs[n].msgxoffset = 0
-  npcs[n].battlestats = {}
-  npcs[n].interact = "battle"
-  npcs[n].world = "overworld"
- npcs[n].battlestats.attack = 5
- npcs[n].battlestats.magic = 5
- npcs[n].battlestats.defense = .75
- npcs[n].battlestats.hp = 100
- npcs[n].battlestats.mp = 100
- npcs[n].alive = true
+  n = copy(npc)
+  add(npcs,n)
  end
  
  for n=nr_of_npcs+1,nr_of_npcs+copycount do 
   x = rnd(500)
   y = rnd(500)
- // while  (isblocked(x,y)) do
-	//	 x = rnd(500)
- //  y = rnd(500)
- // end
+  while  (isblocked(x,y)) do
+		 x = rnd(500)
+   y = rnd(500)
+  end
  	npcs[n].x = x
   npcs[n].y = y
   local txt = generatecansentences()
@@ -1770,9 +1785,8 @@ function initnpcs()
  npcs[4].x= 120*8
  npcs[4].y= 34*8
  npcs[4].world = "cave"
- npcs[4].level = 1
  npcs[4].name = "clax"
- npcs[4].lvlid = 1
+ npcs[4].lvlid = 5
  npcs[4].msg = ": fight me!"
  npcs[4].msgxoffset-=20
  npcs[4].path={
@@ -1806,155 +1820,159 @@ function initnpcs()
  
  
    --pinglet  
- npcs[7].frames = {105,105,106,106}
- npcs[7].x= 36*8
- npcs[7].y = 36*8
- npcs[7].name = "pinglet"
- npcs[7].msg = ""
- npcs[7].alive = true
- npcs[7].randommoves = true
- npcs[7].interact = "battle"
+ n = npcs[7]
+ n.frames = {105,105,106,106}
+ n.x= 36*8
+ n.y = 36*8
+ n.name = "pinglet"
+ n.randommoves = true
+ n.msg = ""
+ n.interact = "battle"
  
     --arnie  
- npcs[8].frames = {81}
- npcs[8].x= 96*8
- npcs[8].y = 11*8
- npcs[8].name = "arnie"
- npcs[8].msg = ": hi"
- npcs[8].alive = true
- npcs[8].path={
+ n = npcs[8]
+ n.frames = {81}
+ n.x= 96*8
+ n.y = 11*8
+ n.name = "arnie"
+ n.msg = ": hi"
+ n.path={
  {96*8,11*8}
  }
- npcs[8].interact = "talk"
- npcs[8].world = "tavern"
- npcs[8].lvlid = 2
+ n.interact = "talk"
+ n.world = "tavern"
+ n.lvlid = 3
  
     --chunt  
- npcs[9].frames = {82}
- npcs[9].x= 96*8
- npcs[9].y = 13*8
- npcs[9].name = "chunt"
- npcs[9].msg = ": get wet"
- npcs[9].alive = true
- npcs[9].path={
+ n = npcs[9]
+ n.frames = {82}
+ n.x= 96*8
+ n.y = 13*8
+ n.name = "chunt"
+ n.msg = ": get wet"
+ n.path={
  {96*8,13*8}
  }
- npcs[9].interact = "talk"
- npcs[9].world = "tavern"
- npcs[9].lvlid = 3
+ n.interact = "talk"
+ n.world = "tavern"
+ n.lvlid = 3
  
  
-    --usidore  
- npcs[10].frames = {80}
- npcs[10].x= 95*8
- npcs[10].y = 12*8
- npcs[10].name = "usidore"
- npcs[10].msg = ": i am usidore.."
- npcs[10].alive = true
- npcs[10].path={
+    --usidore
+ n = npcs[10]  
+ n.frames = {80}
+ n.x= 95*8
+ n.y = 12*8
+ n.name = "usidore"
+ n.msg = ": i am usidore.."
+ n.path={
  {95*8,12*8}
  }
- npcs[10].interact = "talk"
- npcs[10].world = "tavern"
- npcs[10].lvlid = 3
+ n.interact = "talk"
+ n.world = "tavern"
+ n.lvlid = 3
  
-      --blemish  
- npcs[11].frames = {119,119,120,120}
- npcs[11].x= 104*8
- npcs[11].y = 11*8
- npcs[11].name = "blemish"
- npcs[11].msg = ": greetings."
- npcs[11].alive = true
- npcs[11].randommoves = true
- npcs[11].interact = "shop"
- npcs[11].world = "tavern"
- npcs[11].lvlid = 3
- npcs[11].storeid=1
+      --blemish 
+ n = npcs[11]
+ n.frames = {119,119,120,120}
+ n.x= 104*8
+ n.y = 11*8
+ n.name = "blemish"
+ n.msg = ": greetings."
+ n.randommoves = true
+ n.interact = "shop"
+ n.world = "tavern"
+ n.lvlid = 3
+ n.storeid=1
  
 
  --ooze
- npcs[12].frames = {116,116,116,117,117,117}
- npcs[12].x= 115*8
- npcs[12].y= 43*8
- npcs[12].world = "cave"
- npcs[12].name = "ooze"
- npcs[12].lvlid = 2
- npcs[12].msg = ""
- npcs[12].msgxoffset-=20
- npcs[12].path={
+ n = npcs[12]
+ n.frames = {116,116,116,117,117,117}
+ n.x= 115*8
+ n.y= 43*8
+ n.world = "cave"
+ n.name = "ooze"
+ n.lvlid = 6
+ n.msg = ""
+ n.msgxoffset-=20
+ n.path={
  {115*8,43*8},
  {121*8,43*8}
  }
   --mimic
- npcs[13].frames = {78}
- npcs[13].x= 103*8
- npcs[13].y= 54*8
- npcs[13].world = "cave"
- npcs[13].name = "mimic" 
- npcs[13].lvlid = 4
- npcs[13].path={
+ n = npcs[13]
+ n.frames = {78}
+ n.x= 103*8
+ n.y= 54*8
+ n.world = "cave"
+ n.name = "mimic" 
+ n.lvlid = 8
+ n.path={
  {103*8,54*8}
  }
  
   --mimic
- npcs[14].frames = {78}
- npcs[14].x= 108*8
- npcs[14].y= 54*8
- npcs[14].world = "cave"
- npcs[14].name = "mimic" 
- npcs[14].interact = "chest"
- npcs[14].item = "lunar sword" 
- npcs[14].lvlid = 4
- npcs[14].path={
+ n = npcs[14]
+ n.frames = {78}
+ n.x= 108*8
+ n.y= 54*8
+ n.world = "cave"
+ n.name = "mimic" 
+ n.interact = "chest"
+ n.item = "lunar sword" 
+ n.lvlid = 8
+ n.path={
  {108*8,54*8}
  } 
  
  
-   --mimic
- npcs[15].frames = {111}
- npcs[15].x= 105*8
- npcs[15].y= 24*8
- npcs[15].world = "castle"
- npcs[15].name = "good king belaroth" 
- npcs[15].interact = "talk"
- npcs[15].msg = ":\nhowdy"
- npcs[15].lvlid = 4
- npcs[15].path={
+   --king
+ n = npcs[15]
+ n.frames = {111}
+ n.x= 105*8
+ n.y= 24*8
+ n.world = "castle"
+ n.name = "good king belaroth" 
+ n.interact = "talk"
+ n.msg = ":\nhowdy"
+ n.lvlid = 4
+ n.path={
  {105*8,24*8}
  } 
- npcs[16].frames = {73,73,74,74}
- npcs[16].x= 103*8
- npcs[16].y= 26*8
- npcs[16].world = "castle"
- npcs[16].lvlid = 4
- npcs[16].name = "raspberry\nberet"
- npcs[16].interact = "battle"
- npcs[16].path={
+ 
+ n = npcs[16]
+ n.frames = {73,73,74,74}
+ n.x= 103*8
+ n.y= 26*8
+ n.world = "castle"
+ n.lvlid = 4
+ n.name = "raspberry\nberet"
+ n.interact = "battle"
+ n.path={
  {103*8,26*8},
  {107*8,26*8} 
  }
- npcs[17].frames = {73,73,74,74}
- npcs[17].x= 107*8
- npcs[17].y= 23*8
- npcs[17].world = "castle"
- npcs[17].lvlid = 4
- npcs[17].name = "raspberry\nberet"
- npcs[17].interact = "battle"
- npcs[17].path={
+ 
+ npcs[17] = copy(npcs[16])
+ n = npcs[17]
+ n.x= 107*8
+ n.y= 23*8
+ n.path={
  {107*8,23*8},
  {103*8,23*8} 
  } 
  
- 
- npcs[18].frames = {103,103,104,104}
- npcs[18].x= 91*8
- npcs[18].y= 59*8
- npcs[18].world = "cavern"
- npcs[18].lvlid = 5
- npcs[18].name = "tomblain\nbelaroth"
- npcs[18].msg = ":\n i am preparing\n for the batdance "
- npcs[18].interact = "talk"
- npcs[18].randommoves= true
+ n = npcs[18]
+ n.frames = {103,103,104,104}
+ n.x= 91*8
+ n.y= 59*8
+ n.world = "cavern"
+ n.lvlid = 5
+ n.name = "tomblain\nbelaroth"
+ n.msg = ":\n i am preparing\n for the batdance "
+ n.interact = "talk"
+ n.randommoves= true
  end
 
 function openshop()
@@ -1992,8 +2010,8 @@ function drawnpcs()
   	npcs[n].x,
   	npcs[n].y,
   	npcs[n].faceleft)
-  	if  isplayerintersecting(npcs[n].x,npcs[n].y) then	
-  		add(intersecting,n)
+  	if  arespritesintersecting(can.x,can.y,npcs[n].x,npcs[n].y,true) then
+   		add(intersecting,n)
 		 end
  end
  end
@@ -2040,6 +2058,7 @@ function selectnpc()
  end
 end
 
+//todo: this is identifying to the bottom right
 function intersect_f(x1,x2,y1,y2)
  if ((x1 <= x2)
  and(x2 <= (x1+8))
@@ -2073,16 +2092,14 @@ function intersect_box(x1,x2,y1,y2)
    return true
   end
  return false
-  --if x1 is not within x2 -> x2max
-  --and if x2 is not within x1->x1max
 end
 
 
 
 function arespritesintersecting(x1,y1,x2,y2,isplayer)
  x1 = getabsoluteposition(x1,y1,world,isplayer)
- y1 = x1[2]+4
- x1 = x1[1]+4
+ y1 = x1[2]
+ x1 = x1[1]
 
  x2 = getabsoluteposition(x2,y2,world,false)
  y2 = x2[2]
@@ -2098,27 +2115,6 @@ function arespritesintersecting(x1,y1,x2,y2,isplayer)
     
 end
 
-
-function isplayerintersecting(spr_x,spr_y,playerxoff,playeryoff)
- intersect = false
- if not playerxoff then playerxoff = 0 end
- if not playeryoff then playeryoff = 0 end
- 
- x_s1 = getabsoluteposition(can.x,can.y,world,true)
- y_s1 = x_s1[2]+playeryoff
- x_s1 = x_s1[1]+playerxoff
-
- if (x_s1 <= spr_x +4)
- and(spr_x +4 <= (x_s1+8))
- and(y_s1 <= spr_y +4)
- and(spr_y +4<= (y_s1+8)) 
-then    
-    intersect = true
- end
- 
- return intersect
- 
-end
 
 function generatecansentences()
    nounnum = flr(rnd(#nouns)+1)
@@ -2386,7 +2382,7 @@ __map__
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e010101010101010101010101010101010101010101010101010000000000000000000000000000000000000000000000000000000000000000000000000000001f121212121212121212121d00000000000000000000000000000000000000000000
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e010101010101010101010101010101010101010101010101010000000000000000000000000000000000000000000000000000000000000000000000000000001e0e0e0f12120d0e0e0e0e1e00000000000000535353535353537171535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2101010101010101010101010101010101010101010101010118181818181818181818181818181818181818181818000000000000000000000000000000000000000000121200000000000000000000000000536464646464646464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e22730101010101010101010101010101010101010101010118181818181818181818181818181818181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464646464646464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e222e0101010101010101010101010101010101010101010118181818181818181818181818181818181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464646464646464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010101181818181818181818181818181818181818000000000000000000000000000000000071717171717171717171717100000000000000536464535353535353535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2322222223222223010101010101010101010101010101010122181818181818181818181818181818181818000000000000000000000000000000000071717171717171717171717100000000000000536464645353535353535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e1e1e1e1e1e1f2525122d2e2f282818181818181818220101010101010101010101010101012218181818181818181818181818181818181818000000000000000000000000000000000071717171717171717171717100000000000000536464646464646464646464646464
@@ -2395,14 +2391,14 @@ __map__
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123c1d1e1e1e1e0e0e0e1e1e1e1e1f1220121616272818181804060101121201011d1e0f0101181818181818181818181818181818181818181818000000000000000000000000000000000000000000001212000000000000000000000000535353535353535353535353646464
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b121d2e2e1e1e1e1e1e102d1e1e1f1212121216161627281824260101121201011d1e1f0101120d0f12181818180d0e0e0e0e0e18181818181818000000000000000000000000000000000000000000001212000000000000000000000000536464646464646464646464646464
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b120d1e123b1d1e1e1e103030260d1e0e0e0e0e0e0f1616160406122123121201011d1e1f210104101006181818181d1e1e1e1e1e0f181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464646464646464646464646464
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f12123b120d2f123b121d1e1f10303026121d1e1e6b6c1e1e1e0e0f120405060405061221231d1e1f1223243030261818180d1e1e1e1e1e1e1f181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464645353535353535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f12123b120d2f123b121d1e1f10303026121d1e1e2e2e1e1e1e0e0f120405060405061221231d1e1f1223243030261818180d1e1e1e1e1e1e1f181818181818000000000000000000000000000000000000000000000000000000000000000000000000536464645353535353535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f123d120d1e123b12121d1e2f252526121224252612241d1e1e1e1f12040d0f30302612120d1e1e2f1204123030261818181d1e1e1e1e1e1e1e0f1818181818000000000000000000000000000000000000000000003838383838383838383838383838536464646464646464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f12330d2f123b12120d1e2f12121212121c3131311a121d1e1e1e1f121d1e1e0e0e0f200d2e2e2f120430303025261818181d10101e1e1e1e2f181818181818000000000000000000000000000000000000000000003838383838383838383838383838536464646464646464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120430123a12121d1e1f121d1e1f16162f0d1e0f12141530303026181818180d1e3030102e2e2e2f181818181818000000000000000000000000000000000000000000003838383838383838383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e12123a3d12120d1e2f12123b123e3b121204303030123a3c04100b121d1e1f07161616162d0f121212122618180d0e0e1e1030252506181818181818181818000000000000000000000000000000000000000000003838383839383838393838383838535353535353537171535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0f123a12122d2f12123b1212121212303030303012123a24300b120b101617080809162d1e0e0e0e0f1b18122d6b6c2f25261212181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353537171535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f123a121212123b120d0d0f123030303030303012123f240b120b2616271b121916122d2e2e2e2f1818121212121212121218181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f10100f123f12123b120d1e1e2f0f04303030303030300633120b120b061616272829160406121b12121812120405050506121218181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f123a121212123b120d0d0f123030303030303012123f240b120b2616271b121916122d2e2e2e2f1818121212121212181818181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f10100f123f12123b120d1e1e2f0f04303030303030300633120b120b061616272829160406121b12121812120405050506181818181818181818181818180000000000000000000000000000000000000000000038383838380c0c0c383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f24262d0f3312123a12122d1e1010303030303030303026330d1e1e1f24061616161616042612121212181212243030302612121212181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e1e101e1e1e1e123a12123c1212123a12122d0f303030303030303030263e0b14150b12240505050505261212121212182012121224261212331212181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
 1e1e1e1e1e1e1e1e1e10301e1e1e1e06123f3b12120d0f123a12121e1f242525252525252526123a202012121212121212121212121c3131313131313131313131371218181818181818181818000000000000000000000000000000000000000000003838383838380c38383838383838535353535353536464535353535353
