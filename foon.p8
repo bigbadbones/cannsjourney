@@ -17,6 +17,14 @@ end
 function _init()
 
 
+battlestats[1] = copy(bstat)
+battlestats[1].attack = 10
+battlestats[1].magic = 10
+battlestats[1].defense = .5
+
+battlestats[2] = copy(bstat)
+
+
 
 magic_anim = copy(battle_anim)
 magic_anim.audio = 17
@@ -37,6 +45,7 @@ attack_anim.slides = {69,70}
  can.speed = 1
  can.size = {8,8}
  can.faceleft = false
+ can.plt = {}
  error = false
  animation_ongoing = false
 
@@ -46,7 +55,7 @@ attack_anim.slides = {69,70}
  menuid = 1
  selectid = 1
  levelid = 1
- 
+ btlrol = 0
  menuscreen ={}
  
  menuscreen[1] = {}
@@ -59,16 +68,13 @@ attack_anim.slides = {69,70}
  menuscreen[1].icons = {}
  
  menuscreen[2] = {}
- menuscreen[2].len = 3
+ menuscreen[2].len = 1
  menuscreen[2].text =
  {
- {"deed to usidore's hat",0}, 
  {"back",1}
  }
  menuscreen[2].icons =
- {
- 84
- }
+ {}
  
  menuscreen[3] = {}
  menuscreen[3].len = 2
@@ -99,6 +105,15 @@ attack_anim.slides = {69,70}
  menuscreen[5].icons = {
  123}
  
+ menuscreen[6] = {}
+ menuscreen[6].len = 1
+ menuscreen[6].text = 
+ {
+ {"repel powder",-1,{false,5,5},{true,3,5}},
+ }
+ menuscreen[6].icons = {
+ 118}
+ 
  music(1)
 
  oldlocs = {}
@@ -119,17 +134,20 @@ attack_anim.slides = {69,70}
 
  inittext()
 
- init_mapelems()
+ create_world()
  initnpcs()
+ statuseffects = 
+ {
+ {false,0,123,"redpotion"},//redpotion
+ {false,0,118,"powder"} //powder
+ }
 
-
- 
- statuseffects = {}
- statuseffects.redpotion = {false,0}
 cls()
 
-
-
+additem("health potion")
+additem("ether")
+additem("red potion")
+additem("repel powder")
 end
 
 
@@ -172,8 +190,7 @@ function isblocked(x,y)
  	if (fget(mget(((x-(x % 8) ) / 8),((y-(y % 8) ) / 8)) , 0)) then
  	 return true
 	elseif (newworld:blocked(x,y)) then
- 		return true	
- 	
+ 		return true	 	
  	end 
  	return false
 end
@@ -255,7 +272,7 @@ function _update()
  end
 end
 
-
+debug ={}
 function _draw()
 
 
@@ -272,12 +289,16 @@ function _draw()
   elseif gamestate ==5 then
    draw_dialogue()
   end
- 
+
 // print(chunt.loc[1]..','..chunt.loc[2],10,75,10)
  //print(intersect_box(l[1],chunt.loc[1],l[2],chunt.loc[2]),0,0,10)
 
-// local l =  getabsoluteposition(can.x,can.y,world,true)
-
+  for i = 1,#debug do
+   print(debug[i],10,10*i,10)
+  end
+  debug = {}
+	//	e = randomenemy()
+	//	print(e[1]..e[2],10,10,10)
 // print(newworld:blocked(l[1],l[2]),10,10,10)
 // myelem.draw()
 end
@@ -287,7 +308,6 @@ function inittext()
  {"killed",
  "played mittens with",
  "sent a letter to",
- "was killed by",
  "married", 
  "rented a condo with",
  "summoned",
@@ -296,12 +316,9 @@ function inittext()
  "vanquished",
  "vacationed with",
  "was defeated by",
- "was murdered by", 
  "discovered", 
  "forgot about",
  "valiantly fought",
- "am confused by",
- "interrupted",
  "worked out with",
  "tutored",
  "waved at",
@@ -325,8 +342,6 @@ function inittext()
  "ignored",
  "went out \nclubbing with",
  "embarked on \na quest with",
- "couldn't remember",
- "am really foggy about",
  "struggled to \nthink about",
  "pretended to \nknow about",
  "entombed",
@@ -341,15 +356,10 @@ function inittext()
  "many houseflies",
  "an evil sigil",
  "a dragon",
- "arnie", 
- "usidore",
  "a cockatrice",
  "a eunuch",
  "a shapeshifter",
  "a genie",
- "dripfang",
- "blemish",
- "activia",
  "an evil spider",
  "some tourists",
  "an innkeeper",
@@ -358,62 +368,37 @@ function inittext()
  "a tax collector",
  "a corsair",
  "a brigand",
- "momo",
  "a talking flower",
  "a sheriff",
  "a blue tiger",
  "a memory gremlin",
- "arnor",
- "larry birdman",
  "a soulwalker",
  "a pinglet",
- "mayor manana",
  "an evil skeleton",
  "a mimic",
- "chunt",
- "spintax", 
- "wheelbear",
- "cockroach clown",
- "twosidore",
  "a slime",
  "a vampire",
  "a hunger ghost",
  "6 werewolves",
  "an innocent shopkeeper",
  "a tavern wench",
- "an elderdly scholar",
+ "an elderly scholar",
  "a thousand bees", 
- "the pyramid of confusion",
  "a harpie",
- "the hottest shark \ni've ever seen",
- "otak barleyfoot",
- "tomblain belaroth",
  "the dark lord",
- "bob johnson",
- "macho mantis randy mantis",
- "a glass anus",
- "a scroll of foretelling",
- "some guy named larry",
- "grimhoof",
  "the tallest mountain",
- "an unwed mother",
  "a troll",
  "the boy king",
- "queen titania",
  "a bear",
  "a wolf",
  "a lucky scarab",
  "an evil rooster",
- "good king belaroth",
  "a flock of birds",
  "a single starling",
  "a cricket",
  "a she-goat",
  "a great red stag",
  "a tiger with 10 eyes",
- "the entire faculty of \n jizzleknob prep",
- "the dark blade of infinite",
- "the shroud of holy noise",
  "the burger king"
  }
 
@@ -426,7 +411,7 @@ function inittext()
 	{"the\nbig\napple",{47*8,18*8}},
 	{"castle\nbelaroth",{62*8,24*8}},
  {"woods of\nholly",{41*8,41*8}},
- {"fingarian glacier",{46*8,12*8}},
+ {"fingarian glacier",{44*8,14*8}},
  {"scrr",{18*8,34*8}},
  {"mountains of\nits'ak",{21*8,15*8}},
  {"gunder",{33*8,14*8}},
@@ -455,14 +440,13 @@ battleturn = false
 
 battlestats = {{}}
 
-battlestats[1] = {}
-battlestats[1].attack = 10
-battlestats[1].magic = 50
-battlestats[1].hp = 100
-battlestats[1].mp = 100
-battlestats[1].defense = .5
+bstat = {}
+bstat.attack = 5
+bstat.magic = 5
+bstat.hp = 100
+bstat.mp = 100
+bstat.defense = .75
 
-battlestats[2] ={}
 
 battle_anim = {}
 battle_anim.running = false
@@ -472,7 +456,7 @@ battle_anim.audio = nil
 battle_anim.slides = {69,70}
 battle_anim.location = {0,0}
 battle_anim.index = 1
-
+enemy = nil
 
 function attack(idsource,iddest)
  win = false
@@ -511,8 +495,6 @@ end
  a.index = 1
  a.location = {loc[1],loc[2]}
 	animation = a	
-	animation_ongoing = true
-	 if(animation_ongoing) then
  	if animation.audio then 
  		sfx(animation.audio) 
  	end
@@ -528,21 +510,18 @@ end
    wait(5)
  	end
  	draw_battlescreen()
- 	animation_ongoing = false
- end
 end
 
-function animate()
 
-end
 
 ----------- title -----------
 function draw_titlescreen()
- version = 0.9
+ version = 1.0
  cls()
  
- print("version: "..version,5,5,10)
- print("   welcome to can's quest\n - a journey thorugh foon - ",10,30,10)
+ print("version: "..version,5,5,5)
+ print("welcome to blue \nwizard's quest",30,30,10)
+ print("- a journey thorugh foon - ",10,50,10)
  print("controls:",10,60,7)
  print("press 'z' to interact",10,70,7)
  print("press 'x' to open menu",10,80,7)
@@ -569,12 +548,8 @@ function draw_menuscreen()
    drawarrow(7,22+10*selectid,7)
    drawmenu(menuid)
    updatesprite(can)
-   pal()
-   if (statuseffects.redpotion[1]==true) then
-  		pal(15,8)
-  	end
-   spr(can.frames[can.frameid],10,10)
-			pal()
+ 	drawsprite(can.frames[can.frameid],
+  	10,10, false,can.plt,true)
    drawhealthbars(false)
    print(money.."g",35,14,7)
    spr(94,22,12)
@@ -594,25 +569,37 @@ end
 function restore_status(st)
  
 	if st == "redpotion" then
-	 statuseffects.redpotion[1] = false
+	 statuseffects[1][1] = false
  	if world == "overworld" then
  	can.x = 50
  	can.y = 50
  	end
+ elseif st == "powder" then
+ 	statuseffects[2][1] = false
  end
   can.speed = 1
+  can.plt ={}
 end
 
-function draw_redpotion()
- local duration = time()-10 - statuseffects.redpotion[2]
- if duration>=0 then
-   restore_status("redpotion")
- 
- else
-     spr(123,0,0)
- 	   print(flr(duration*-1),10,3,10)
+function drawstatus()
+ local j = 0
+ for i=1, #statuseffects do
+ 	local s = statuseffects[i]
+ 	if s[1] then
+   local duration = time()-10 - s[2]
+   if duration>=0 then
+     restore_status(s[4])
+   else
+       spr(s[3],0,0+10*j)
+   	   print(flr(duration*-1),10,3+10*j,10)
+ 						j+=1
+   end 
+  end
  end
-
+ 
+  if (statuseffects[1][1]==true) then
+  		dorandommoves(can,true)
+  end
 end
 
 
@@ -712,16 +699,10 @@ end
 ----------- world -----------
 
 function drawplayer()
-  pal()
   
-  if (statuseffects.redpotion[1]==true) then
-  	dorandommoves(can,true)
-  	pal(15,8)
-  	draw_redpotion()
-  end
-  spr(can.frames[can.frameid],can.x,can.y,1,1,can.faceleft,false)
-  pal()
-
+	 drawstatus()
+ 	drawsprite(can.frames[can.frameid],
+  can.x,can.y, can.faceleft,can.plt,true)
 end
 
 
@@ -734,18 +715,16 @@ function draw_worldscreen()
  end
 
 function canmovementblocked(xoff,yoff)
-	local blocked = true
  local l =  getabsoluteposition(can.x+xoff,can.y+yoff,world,true)
 	if band(
 	(getmapflags(can,xoff,yoff)
 	), 0x1)==0 
 	and not (newworld:blocked(l[1],l[2]) )
 		then
-	 blocked = false
-
+	 return false
  end
 
-return blocked
+return true
 end
 
 function handleinputs_worldscreen()
@@ -754,41 +733,37 @@ function handleinputs_worldscreen()
   yadjust = 0
   xadjust = 0
   if btn(0) then
-  	updatesprite(can)
-  	if not canmovementblocked(-can.speed,0) then
-   		xadjust+=can.speed
+   	xadjust+=can.speed
   		can.faceleft = true
-  	end
   elseif btn(1) then
-   updatesprite(can)
-	  if not canmovementblocked(can.speed,0) then
-    xadjust-=can.speed
-    can.faceleft = false
-   end
+   xadjust-=can.speed
+   can.faceleft = false
   end
   if btn(2) then
-   updatesprite(can)
- 		
-   if not canmovementblocked(0,-can.speed) then
-  
  			yadjust+=can.speed
- 		end
   elseif btn(3) then
-   updatesprite(can) 
-  if not canmovementblocked(0,can.speed) then
-    	yadjust-=can.speed 
-   end
-  end
-  
+   yadjust-=can.speed 
+  end  
   if btnp(4) then
-  	world_select()
+  	selectnpc()
   end
   
   if btnp(5) then
   	gamestate = 2
   	sfx(15)
   end
- 
+  
+  if (xadjust!=0 or yadjust!=0) then
+   if statuseffects[2][1] == false then
+   btlrol = flr(rnd(50))
+   end
+   updatesprite(can)
+   if (canmovementblocked(-xadjust,0))then 
+    xadjust = 0
+   end
+  if (canmovementblocked(0,-yadjust))then 
+    yadjust = 0
+   end
   if world == "overworld" then
   	mapxoffset +=xadjust
    mapyoffset +=yadjust
@@ -796,16 +771,16 @@ function handleinputs_worldscreen()
   	can.x -=xadjust
   	can.y -=yadjust
   end
-
   local l =  getabsoluteposition(can.x,can.y,world,true)
   newworld:touch(l[1],l[2])
-
+ end
+ if world == "cave" then
+ 	if btlrol == 1 then
+ 		startbattle()
+ 		end
+ 	end
 end
 
-
-function world_select()
-	selectnpc()
-end
 ----------- battle -----------   cls()
 
 
@@ -814,12 +789,11 @@ function startbattle(enemyid)
  circlewipe()
  battleturn = false
  battleselect = 1
- if npcs[enemyid].battlestats.hp>0 then
-  gamestate = 3
-  enemy = setenemysprite(enemyid)
- 	eid = enemyid
- 	battlestats[2] = enemy.battlestats
-	end
+
+ eid = enemyid
+ enemy = setenemysprite(enemyid)
+	battlestats[2] = copy(bstat)
+	 gamestate = 3
 end
 
 function draw_battlescreen()
@@ -827,32 +801,40 @@ function draw_battlescreen()
  print("!!battle!!",50,10,7)
  draw_battle_art()
 	draw_battlemenu()
-//	animate()
 end
 
 
 function setenemysprite(e)
- updatesprite(npcs[e])
- return npcs[e]
+ if e == nil then
+	 d =  randomenemy()
+	 e = copy(npcs[1])
+	 e.frames = d[1]
+	 e.name = d[2]
+	 return e
+	else 
+		return npcs[e]
+ end
 end
 
-function getenemysprite()
- e = flr(rnd(5))+1
- return setenemysprite(e)
+function randomenemy()
+	elist = 
+ {
+ {{71,71,72,72},"skeleton"},
+ {{116,116,117,117},"ooze"},
+ {{121,121,122,122},"evil ghost"}
+ }
+ return elist[flr(rnd(#elist))+1]
 end
 
 function draw_battle_art()
  drawhealthbars(true)
 
-
  updatesprite(can)
  spr(can.frames[can.frameid],
  15,
  75)
- print ("can\nthe yellow",10,30,10)
- if enemy == nil then
-		enemy = getenemysprite ()
-	end
+ print ("usidore\nthe blue\nwizard",10,30,10)
+
 	updatesprite(enemy)
 	
 	drawsprite(enemy.frames[enemy.frameid],
@@ -944,6 +926,7 @@ function returntoworld()
   gamestate = 1
   menuid = 1
   selectid=1
+  btlrol = 0
 end
  
 function battleselectmenu()
@@ -1032,27 +1015,19 @@ function handleinputs_battlescreen()
   	sfx(18)
   	battleselect-=1
   end
- 
   if btnp(3) and 3>=battleselect+1 then
    	sfx(18)
   	battleselect+=1
   end
-  
   if btnp(4) then 
    battleselectmenu()
   end
 
 end
 -->8
-blocking_interacts = {}
-topitems = {}
 justtele = false
-nr_of_cavelevels =4
 
 caveids={{113,33},{113,48},{113,18},{98,48}}
-
-
-
 
 
 worldmap ={}
@@ -1139,18 +1114,6 @@ function lvlmap:addcastle(x,y,tele)
  add(self.elems,m1)
  add(self.elems,m2)
 end
-function lvlmap:addexit(x,y,lvl)
- m1 = copy(mapelem)
- m1.sprite = 67
- m1.loc = {x,y}
- m1.tele = {"exit",lvl}
- m2 = copy(mapelem)
- m2.sprite = 67
- m2.loc = {x+8,y}
- m2.tele = {"exit",lvl}
-  add(self.elems,m1)
- add(self.elems,m2)
-end
 
 function lvlmap:addspseries(x,y,sp,width,lvl, blocking, repeatflag,tele)
 	for i = 1, width do
@@ -1217,48 +1180,38 @@ function create_world()
  overworld = copy(lvlmap)
  newworld  = copy(worldmap)
  belaroth  = copy(lvlmap)
- cavern  = copy(lvlmap)
- megas  = copy(lvlmap)
- capitol  = copy(lvlmap)
- capitol:addcastle(90*8,34*8,{"c_castle",10})
- capitol:addexit(90*8,45*8,1)
- capitol:addexit(91*8,45*8,1)
+ cavern    = copy(lvlmap)
+ megas     = copy(lvlmap)
+ terrak    = copy(lvlmap)
+
+ terrak:addspseries(89*8,63*8,67,3,0,false,true,{"exit",1})
+
+ capitol = copy(lvlmap)
+ capitol:addcastle(89*8,37*8,{"c_castle",10})
+ capitol:addspseries(89*8,48*8,67,3,0,false,true,{"exit",1})
 
 
  c_castle = copy(lvlmap)
 
- c_castle:addspseries(100*8,39*8,42,3,1,false)
- c_castle:addspseries(100*8,33*8,42,3,1,false)
-
- c_castle:addcolumn(99*8,40*8,2)
- c_castle:addcolumn(103*8,40*8,2)
-
-
- c_castle:addspseries(108*8,39*8,42,3,1,false)
- c_castle:addspseries(108*8,33*8,42,3,1,false)
-
- c_castle:addcolumn(107*8,40*8,2)
- c_castle:addcolumn(111*8,40*8,2)
- c_castle:addcolumn(103*8,34*8,2)
- c_castle:addcolumn(107*8,34*8,2)
- c_castle:addcolumn(99*8,34*8,2)
- c_castle:addcolumn(111*8,34*8,2)
- c_castle:addexit(104*8,47*8,9)
- c_castle:addexit(105*8,47*8,9)
- 
-
+ c_castle:addspseries(104*8,47*8,67,3,0,false,true,{"exit",9})
+ c_castle:addcolumn(109*8,43*8,2)
+ c_castle:addcolumn(101*8,38*8,2)
+ c_castle:addcolumn(107*8,36*8,2)
 
  cave1      = copy(lvlmap)
  cave1:addspseries(120*8,33*8,101,2,0,false,false,{"cave",6})
- cave1:addexit(120*8,48*8,1)
+ cave1:addspseries(120*8,48*8,67,2,0,false,true,{"exit",1})
+
  cave2      = copy(lvlmap)
  cave2:addspseries(120*8,48*8,101,2,0,false,false,{"cave",7})
- cave2:addexit(120*8,63*8,5)
+ cave2:addspseries(120*8,63*8,67,2,0,false,true,{"exit",5})
+
  cave3      = copy(lvlmap)
  cave3:addspseries(120*8,18*8,101,2,0,false,false,{"cave",8})
- cave3:addexit(120*8,33*8,6)
+ cave3:addspseries(120*8,33*8,67,2,0,false,true,{"exit",6})
+
  cave4      = copy(lvlmap)
- cave4:addexit(105*8,63*8,7)
+ cave4:addspseries(105*8,63*8,67,2,0,false,true,{"exit",7})
 
 
  tavern_m = copy(mapelem)
@@ -1272,11 +1225,10 @@ function create_world()
  belaroth:addcolumn(121*8,12*8,2)
  belaroth:addcolumn(117*8,5*8,2)
  belaroth:addcolumn(121*8,5*8,2)
- belaroth:addexit(118*8,17*8,1)
- belaroth:addexit(119*8,17*8,1)
+ belaroth:addspseries(118*8,17*8,67,3,0,false,true,{"exit",1})
 
 
- cavern:addexit(90*8,63*8,1)
+ cavern:addspseries(104*8,24*8,67,2,0,false,true,{"exit",1})
 
 
  overworld:addspseries(34*8,18*8,107,2,0,false,false,{"cave",5})
@@ -1293,18 +1245,19 @@ function create_world()
  overworld:addcastle(64*8,26*8,{"castle",4})
  --capitol city
  overworld:addcastle(40*8,27*8,{"capitol",9})
+ overworld:addcastle(22*8,29*8,{"terrak",13})
 
 
- tavern:addexit(106*8,31*8,2)
+ tavern:addspseries(106*8,31*8,67,2,0,false,true,{"exit",2})
+
+
  tavern:addspseries(108*8,28*8,126,5,0,true,true)
  tavern:addblockingelem(112,112*8,29*8)
  tavern:addblockingelem(112,103*8,28*8)
+//addspseries                (x,y,sp,width,lvl, blocking, repeatflag,tele)
+ hogsface:addspseries(104*8,15*8,67,3,0,false,true,{"exit",1})
 
- hogsface:addexit(104*8,15*8,1)
- hogsface:addexit(105*8,15*8,1)
- megas:addexit(90*8,29*8,1)
- megas:addexit(91*8,29*8,1)
-
+ megas:addspseries(90*8,29*8,67,3,0,false,true,{"exit",1})
 
  newworld.lvls[1]  = overworld
  newworld.lvls[2]  = hogsface
@@ -1318,38 +1271,11 @@ function create_world()
  newworld.lvls[10] = c_castle 
  newworld.lvls[11] = cavern  
  newworld.lvls[12] = megas  
+ newworld.lvls[13] = terrak   
  newworld.currworld = newworld.lvls[1]
 
 
 end
-
-
-
-function init_mapelems()
-
-
-create_world()
-
-end
-
-
-
-
-
-
-function draw_caveelems()
-  if cavelevels[levelid]then
-  for n=1,cavelevels[levelid].nr_of_elems do
-   local elem = cavelevels[levelid].elems[n] 
-   drawsprite(elem[1],
-   elem[2],
-   elem[3])
-  end
-
- end
-
-end
-
 
 function wipe(topbottom)
  if topbottom then
@@ -1377,6 +1303,9 @@ function circlewipe()
 
 end
 
+
+
+
 function teleport(location,newloc)
  oldx = can.x
  oldy = can.y
@@ -1389,6 +1318,8 @@ function teleport(location,newloc)
  oldcelh = celh
  
  teleportworked = false
+ 
+
  if location == "exit" then
    sfx(21)
    wipe(false)
@@ -1409,117 +1340,90 @@ function teleport(location,newloc)
    else
    can.y+=8
    end
- 		
- elseif location =="tavern" then
- sfx(22)
- 	wipe(true)
- 	cellx = 101
- 	celly = 26
- 	sx = 25
- 	sy = 25
- 	celw = 12
- 	celh = 6
- 	world="tavern"
- 	can.x = 65
- 	can.y = 55
- 	teleportworked = true
- elseif location =="town" then
-  sfx(22)
-  wipe(true)
- 	cellx = 99
- 	celly = 0
- 	sx = 0
- 	sy = 0
- 	celw = 14
- 	celh = 20
- 	can.x = 50
- 	can.y = 100
- 	world="town"
- 	teleportworked = true
-
- elseif location =="castle" then
-  sfx(22)
-  wipe(true)
- 	cellx = 113
- 	celly = 2
- 	sx = 0
- 	sy = 0
- 	celw = 14
- 	celh = 20
- 	can.x = 50
- 	can.y = 109
- 	world="castle"
- 	teleportworked = true
  	
- elseif location =="cavern" then
+ else
   sfx(22)
   wipe(true)
- 	cellx = 86
- 	celly = 55
- 	sx = 25
- 	sy = 25
- 	celw = 12
- 	celh = 9
- 	can.x = 58
- 	can.y = 70
- 	world="cavern"
- 	teleportworked = true
-
- elseif location =="cave" then
-  sfx(22)
-  wipe(true)
- 	cellx = caveids[newloc-4][1]
- 	celly = caveids[newloc-4][2]
- 	sx = 0
- 	sy = 0
- 	celw = 20
- 	celh = 20
- 	can.x = 58
- 	can.y = 109
- 	world="cave"
- 	teleportworked = true
- 	
- elseif location =="capitol" then
-  sfx(22)
-  wipe(true)
- 	cellx = 85
- 	celly = 30
- 	sx = 0
+  sx = 0
  	sy = 0
  	celw = 14
  	celh = 20
  	can.x = 50
  	can.y = 100
- 	world="capitol"
- 	teleportworked = true
- elseif location =="c_castle" then
-  sfx(22)
-  wipe(true)
- 	cellx = 99
- 	celly = 32
- 	sx = 0
- 	sy = 0
- 	celw = 14
- 	celh = 20
- 	can.x = 50
- 	can.y = 100
- 	world="c_castle"
- 	teleportworked = true
- elseif location =="megas" then
-  sfx(22)
-  wipe(true)
- 	cellx = 85
- 	celly = 14
- 	sx = 0
- 	sy = 0
- 	celw = 14
- 	celh = 20
- 	can.x = 50
- 	can.y = 100
- 	world="megas"
- 	teleportworked = true 	
+  if location =="tavern" then
+  
+  	cellx = 101
+  	celly = 26
+  	sx = 25
+  	sy = 25
+  	celw = 12
+  	celh = 6
+  	world="tavern"
+  	can.x = 65
+  	can.y = 55
+  	teleportworked = true
+  elseif location =="town" then
+  	cellx = 99
+  	celly = 0
+  	world="town"
+  	teleportworked = true
+ 
+  elseif location =="castle" then
+  	cellx = 113
+  	celly = 2
+  	can.y = 109
+  	world="castle"
+  	teleportworked = true
+  	
+  elseif location =="cavern" then 
+  	cellx = 100
+  	celly = 16
+  	sx = 25
+  	sy = 25
+  	celw = 12
+  	celh = 9
+  	can.x = 58
+  	can.y = 70
+  	world="cavern"
+  	teleportworked = true
+ 
+  elseif location =="cave" then
+  	cellx = caveids[newloc-4][1]
+  	celly = caveids[newloc-4][2]
+  	sx = 0
+  	sy = 0
+  	celw = 20
+  	celh = 20
+  	can.x = 58
+  	can.y = 109
+  	world="cave"
+  	teleportworked = true
+  	
+  elseif location =="capitol" then
+  	cellx = 84
+  	celly = 33
+ 
+  	world="capitol"
+  	teleportworked = true
+  elseif location =="c_castle" then
+  	cellx = 99
+  	celly = 32
+ 
+  	world="c_castle"
+  	teleportworked = true
+  elseif location =="megas" then
+  	cellx = 85
+  	celly = 14
+  	world="megas"
+  	teleportworked = true 
+ elseif location =="terrak" then
+  	cellx = 84
+  	celly = 49
+  	sy = 8
+  	world="terrak"
+  	teleportworked = true  		
+ 	end
 	end
-
 	if teleportworked then
 	
 		add(oldlocs,
@@ -1571,6 +1475,11 @@ function copy(o)
   end
   return c
 end
+
+
+
+
+
 -->8
 function useitem()
 local item = 
@@ -1579,9 +1488,10 @@ local item =
  if item[1] == "red potion" then
   sfx(18)
   dropitem(selectid)
-  statuseffects.redpotion[1] = true
-  statuseffects.redpotion[2] = time()
+  statuseffects[1][1] = true
+  statuseffects[1][2] = time()
   can.speed*=1.5
+  add (can.plt, {15,8})
  elseif item[1] == "ether" then
   if battlestats[1].mp>=100 then
    sfx(23)
@@ -1604,7 +1514,11 @@ local item =
    end
    dropitem(selectid)
   end
- end
+ elseif item[1] == "repel powder" then
+ 	statuseffects[2][1] = true
+  statuseffects[2][2] = time()
+  dropitem(selectid)
+	end
 end
 
 function dropitem(id)
@@ -1640,6 +1554,8 @@ function geticon(name)
   icon=125
  elseif name == "lunar sword" then
   icon=068  
+ elseif name == "repel powder" then
+ 	icon = 118
  end
  return icon
 end
@@ -1677,7 +1593,7 @@ end
 
 -->8
 
-nr_of_npcs = 19
+nr_of_npcs = 25
 
 function randomcolors()
  plt = {}
@@ -1704,19 +1620,10 @@ function addvillager(x,y,w,lvl)
  
  dia = 
  {
- "oh no, it's\nyou again",
+ "i heard trainee \nwizards sell repel powder \nto pay their school debt",
  "get away from me!",
- "get out of\nmy sight",
- "you're not\nwelcome here",
- "oh it's you \nagain!",
- "welcome back!",
- "good to see a \nfamiliar face!",
- "don't i know you \nfrom somewhere?",
- "another yellow\nwizard!?",
- "greetings!",
- "nice to see \nyou again",
- "wasn't i just \ntalking to you?",
- "why do you always \nhang around here?",
+ "if you're looking\nfor a red potion dealer\ni saw one in the capital \ncastle",
+ "don't start\ntrouble i have an eye \non you.",
  "do you need something?"
  }
 
@@ -1738,6 +1645,7 @@ function addvillager(x,y,w,lvl)
 end
 
 function kill(id)
+ if id == nil then return end
  npcs[id].frames = {121,121,122,122}
  npcs[id].alive = false
  if (not (npcs[id].name == "")) then
@@ -1754,24 +1662,18 @@ end
   npc.frameid = 1
   npc.speed = 0.5
   npc.lvlid = 1
-  npc.x = 19*8
-  npc.y = 15*8
+  npc.x = 0
+  npc.y = 0
   npc.randommoves = false
-  npc.path={{{19*8,15*8}}}
+  npc.path=nil
   npc.futurepath = {}
   npc.faceleft = false
   npc.msg = ""
   npc.name = ""
   npc.msgyoffset = 0
   npc.msgxoffset = 0
-  npc.battlestats = {}
   npc.interact = "battle"
   npc.world = "overworld"
-  npc.battlestats.attack = 5
-  npc.battlestats.magic = 5
-  npc.battlestats.defense = .75
-  npc.battlestats.hp = 100
-  npc.battlestats.mp = 100
   npc.alive = true
   npc.plt = nil
 function initnpcs()
@@ -1793,6 +1695,7 @@ function initnpcs()
   npcs[n].y = y
   local txt = generatecansentences()
   npcs[n].msg = txt[2]
+  npcs[n].plt = {{1,9},{12,10}}
   npcs[n].interact = "talk"
   npcs[n].randommoves = true
   npcs[n].name = txt[1]
@@ -1803,11 +1706,12 @@ function initnpcs()
  end
  --grimhoof 
  
- npcs[1].frames = {96,96,97,97}
- npcs[1].x= 19*8
- npcs[1].y= 15*8
- npcs[1].name = "grimhoof"
- npcs[1].path={
+ n = npcs[1]
+ n.frames = {96,96,97,97}
+ n.loc= 19*8
+ n.y= 15*8
+ n.name = "grimhoof"
+ n.path={
  {19*8,15*8},
  {15*8,19*8},
  {15*8,22*8},
@@ -1818,13 +1722,15 @@ function initnpcs()
  
  
   --ogre  
- npcs[2].frames = {87,87,88,88}
- npcs[2].x= 30*8
- npcs[2].y = 20*8
- npcs[2].name = "ogre"
- npcs[2].msg = ": top o' the \nmornin' to ya"
- npcs[2].interact = "talk"
- npcs[2].path={
+ n = npcs[2]
+ n.frames = {87,87,88,88}
+ n.x= 30*8
+ n.y = 20*8
+ n.name = "ogre"
+ n.msg = ": top o' the \nmornin' to ya"
+ n.interact = "shop"
+ n.storeid=1
+ n.path={
  {30*8,20*8},
  {34*8,20*8},
  {38*8,24*8},
@@ -1838,56 +1744,64 @@ function initnpcs()
  {26*8,44*8}  
  }
  
- --lady outside castle belaroth
- npcs[3].frames = {89,89,90,90}
- npcs[3].plt = randomcolors()
- npcs[3].x= 57*8
- npcs[3].y= 28*8
- npcs[3].name = "villager"
- npcs[3].path={
+ --guy outside castle belaroth
+ n = npcs[3]
+ n.frames = {119,119,120,120}
+ n.plt = randomcolors()
+ n.x= 57*8
+ n.y= 28*8
+ n.name = "villager"
+ n.interact = "talk"
+ n.msg = ":\n top o' the mornin'\n to ya"
+ n.path={
  {57*8,28*8},
  {65*8,28*8} 
  }
 
 
  --skeleton
- npcs[4].frames = {71,71,72,72}
- npcs[4].x= 120*8
- npcs[4].y= 43*8
- npcs[4].world = "cave"
- npcs[4].name = "clax"
- npcs[4].lvlid = 5
- npcs[4].msg = ": fight me!"
- npcs[4].msgxoffset-=20
- npcs[4].path={
- {120*8,43*8},
- {121*8,43*8}
- }
+-- n = npcs[4]
+-- n.frames = {71,71,72,72}
+-- n.x= 120*8
+-- n.y= 43*8
+-- n.world = "cave"
+-- n.name = "clax"
+-- n.lvlid = 5
+-- n.msg = ": fight me!"
+-- n.msgxoffset-=20-
+-- n.path={
+-- {120*8,43*8},
+-- {121*8,43*8}
+-- }
  
  --guy in the southeast
- npcs[5].frames = {103,103,104,104}
- npcs[5].x= 45*8
- npcs[5].y= 53*8
- npcs[5].name = "tradesman"
- npcs[5].path={
+ n = npcs[5]
+ n.frames = {119,119,120,120}
+ n.x= 45*8
+ n.y= 53*8
+ n.plt = randomcolors()
+ n.name = "tradesman"
+ n.path={
  {45*8,53*8},
  {45*8,46*8},
  {44*8,46*8} 
  }
  
  --witch outside terrakis
- npcs[6].speed =.25
- npcs[6].frames = {91,91,92,92}
- npcs[6].x= 22*8
- npcs[6].y= 26*8
- npcs[6].plt = randomcolors()
- npcs[6].name = "trainee\nwizard"
- npcs[6].path={
+ n = npcs[6]
+ n.speed =.25
+ n.frames = {91,91,92,92}
+ n.x= 22*8
+ n.y= 26*8
+ n.plt = randomcolors()
+ n.name = "trainee\nwizard"
+ n.path={
  {22*8,26*8},
  {25*8,29*8},
  {25*8,30*8},
  {22*8,30*8} 
  }
+ 
  
  
    --pinglet  
@@ -1907,9 +1821,6 @@ function initnpcs()
  n.y = 28*8
  n.name = "arnie"
  n.msg = ": hi"
- n.path={
- {102*8,28*8}
- }
  n.interact = "talk"
  n.world = "tavern"
  n.lvlid = 3
@@ -1921,29 +1832,31 @@ function initnpcs()
  n.y = 29*8
  n.name = "chunt"
  n.msg = ": get wet"
- n.path={
- {103*8,29*8}
- }
  n.interact = "talk"
  n.world = "tavern"
  n.lvlid = 3
  
  
-    --usidore
+
  n = npcs[10]  
- n.frames = {80}
+ n.frames = {89,89,90,90}
 
-
- n.x= 103*8
- n.y = 27*8
- n.name = "usidore"
- n.msg = ": i am usidore,\nwizard of the 12th realm \nof ephysiyies,\nmaster of light and..."
- n.path={
- {103*8,27*8}
- }
+ n.x= 40*8
+ n.y = 29*8
+ n.name = "villager"
+ n.plt = randomcolors()
+ n.msg = ": safe travels"
  n.interact = "talk"
- n.world = "tavern"
- n.lvlid = 3
+ n.world = "overworld"
+ n.lvlid = 1
+ n.path =
+ {
+ {40*8,29*8},
+ {40*8,32*8},
+ {27*8,32*8}, 
+ {25*8,30*8},
+ {23*8,30*8}  
+ }
  
  --blemish 
  n = npcs[11]
@@ -1961,18 +1874,18 @@ function initnpcs()
  
 
  --ooze
- n = npcs[12]
- n.frames = {116,116,116,117,117,117}
- n.x= 115*8
- n.y= 52*8
- n.world = "cave"
- n.name = "ooze"
- n.lvlid = 6
- n.msgxoffset-=20
- n.path={
- {115*8,52*8},
- {121*8,52*8}
- }
+-- n = npcs[12]
+-- n.frames = {116,116,116,117,117,117}
+-- n.x= 115*8
+-- n.y= 52*8
+-- n.world = "cave"
+-- n.name = "ooze"
+-- n.lvlid = 6
+-- n.msgxoffset-=20
+-- n.path={
+-- {115*8,52*8},
+-- {121*8,52*8}
+-- }
   --mimic
  n = npcs[13]
  n.frames = {78}
@@ -1981,10 +1894,6 @@ function initnpcs()
  n.world = "cave"
  n.name = "mimic" 
  n.lvlid = 8
- n.path={
- {103*8,54*8}
- }
- 
   --mimic
  n = npcs[14]
  n.frames = {78}
@@ -1995,10 +1904,6 @@ function initnpcs()
  n.interact = "chest"
  n.item = "lunar sword" 
  n.lvlid = 8
- n.path={
- {108*8,54*8}
- } 
- 
  
    --king
  n = npcs[15]
@@ -2010,16 +1915,14 @@ function initnpcs()
  n.interact = "talk"
  n.msg = ":\nhowdy"
  n.lvlid = 4
- n.path={
- {119*8,8*8}
- } 
  
  n = npcs[16]
- n.frames = {73,73,74,74}
+ n.frames = {73,73,73,73,74,74,74,74}
  n.x= 117*8
  n.y= 7*8
  n.world = "castle"
  n.lvlid = 4
+ n.speed = 0.25
  n.name = "raspberry\nberet"
  n.interact = "battle"
  n.path={
@@ -2038,8 +1941,8 @@ function initnpcs()
  
  n = npcs[18]
  n.frames = {119,119,120,120}
- n.x= 93*8
- n.y= 59*8
+ n.x= 108*8
+ n.y= 20*8
  n.world = "cavern"
  n.lvlid = 11
  n.plt = randomcolors()
@@ -2051,8 +1954,8 @@ function initnpcs()
  --redpotion dealer 
  n = npcs[19]
  n.frames = {89,89,90,90}
- n.x= 101*8
- n.y = 38*8
+ n.x= 104*8
+ n.y = 37*8
  n.name = "shopkeeper"
  n.msg = ": greetings."
  n.randommoves = true
@@ -2062,10 +1965,66 @@ function initnpcs()
  n.plt = randomcolors()
  n.storeid=2 
  
+ npcs[20] = copy(npcs[6])
+ npcs[20].world = "terrak"
+ npcs[20].lvlid = 13
+ npcs[20].randommoves =true
+ npcs[20].x = 93*8
+ npcs[20].y = 60*8
+ npcs[20].plt = randomcolors()
+ 
+ npcs[21] = copy(npcs[20])
+ npcs[21].plt = randomcolors() 
+ npcs[21].x = 87*8
+ npcs[21].y = 60*8
+
+ npcs[22] = copy(npcs[20])
+ npcs[22].plt = randomcolors()
+ npcs[22].x = 94*8
+ npcs[22].y = 51*8
+ npcs[22].interact = "shop"
+ npcs[22].storeid=3
+ 
+ 
+ npcs[23] = copy(npcs[16])
+ n = npcs[23]
+ n.x= 99*8
+ n.y= 38*8
+ n.world = "c_castle"
+ n.lvlid = 10
+ n.name = "shrike valley\nguard"
+ n.interact = "battle"
+ n.plt={{8,6},{2,5}}
+ n.path={
+ {99*8,38*8},
+ {112*8,38*8} 
+ } 
+ npcs[24] = copy(npcs[23])
+ n = npcs[24]
+ n.x= 112*8
+ n.y= 43*8 
+ n.path={
+ {99*8,43*8},
+ {112*8,43*8} 
+ } 
+ 
+ npcs[25] = copy(npcs[15])
+ n = npcs[25]
+ n.x= 105*8
+ n.y= 41*8
+ n.world = "c_castle"
+ n.name = "baron ragoon" 
+ n.interact = "talk"
+ n.plt ={{7,6},{8,7}}
+ n.msg = ":\ngreetings"
+ n.lvlid = 10
+   
  addvillager(88*8,39*8,"capitol",9)
  addvillager(92*8,37*8,"capitol",9)
  addvillager(109*8,10*8,"town",2)
  addvillager(103*8,6*8,"town",2)
+
+
 
  end
 
@@ -2117,7 +2076,7 @@ function interact(n)
  local ty = 0
 
   if (n.interact == "battle")or
-   ((statuseffects.redpotion[1] == true 
+   ((statuseffects[1][1] == true 
    and n.alive == true))then
    drawsprite(93,n.x+6,n.y-8,false)
   elseif n.interact == "talk" then
@@ -2133,7 +2092,7 @@ function selectnpc()
 	if #intersecting >0 then
  	local n = npcs[intersecting[1]]
  	if (n.interact == "battle") or
- 	(statuseffects.redpotion[1] == true 
+ 	(statuseffects[1][1] == true 
   and n.alive == true) 	
  	then
  	 startbattle(intersecting[1])
@@ -2241,29 +2200,18 @@ end
 
 function movesprite(sprite)
  if sprite.randommoves then dorandommoves(sprite)
- else  followpath(sprite)
+ elseif sprite.path !=nil then
+  followpath(sprite)
  end
 end
 
 function dorandommoves(sprite,player)
- x = rnd(7)
- y = rnd(7)
- 
-  if x >2 then
-  	xmove = 0
-  elseif x<1 then
-  	xmove=-sprite.speed
-  elseif x>1 then
-  	xmove = sprite.speed
-  end
-  
-  if y >2 then
-   ymove = 0
-  elseif y<1 then
-  	ymove = -sprite.speed
-  elseif y>1 then
-  	ymove = sprite.speed 
-  end
+x = rnd(flr(2))*(flr(rnd(3))-1)
+y = rnd(flr(2))*(flr(rnd(3))-1)
+
+xmove = sprite.speed*x
+ymove = sprite.speed*y
+
 
 	 if not (isblocked(sprite.x+xmove,sprite.y+ymove)) then
 	 	sprite.x +=xmove
@@ -2367,138 +2315,138 @@ bb3bb3bb4444444444444433b3b44433333444443334444444444433444444335d5dd5555d6666d5
 233bb332333333333334443333344433333444333333333333333333333333335d5555dd5dd66dd5333344433444333334443333333443333333444333344433
 33bbbb333333b3b333344433333444333334443333b3b333333b3b3333333b3b55ddd55556dddd65333334444443333344433333333443333333344433344433
 333bb33333333b33333444333334443333344433333b33333333b333333333b3d5ddd5dd5d6666d5333333444433333344333333333443333333334433344433
-09990000099900000999000051515151000600000000000000008000007777700777770000888800008888000000000000000000005555000055550055555555
-99999000999990009999900015151515000600000008800000088800007575700757570000245440002454400000000000000000057777550554455051111115
-0aaaa0000aaaa0000aaaa00051515151000600000088980008800880007757700775770000274400702444000000000000000000577997755544445551111115
-061f1600061f1600061f160015151515000600000089980000800800070750070075000000676640766666000000000000000000579aa9755444444551111115
-06fff60006fff60006fff6f051515151000600000089880000800800007777707777770000d4da0440ddad00000000000000000057799775555aa555555aa555
-099699f409969f400996994015151515005550000008800000888000005775000057557000656600506666000000000000000000577777555444444554444445
-f999990409f99940f999990451515151000900000000000008080000007557707775770000666110011666000000000000000000577555005444444554444445
-09292904092999000999290415151515000500000000000000000000077000007000077000110000000001100000000000000000755000005555555555555555
-01110000002220000011150088988888000000f000000000ccc00000000dd000000dd0000055bb000055bb000000000000000000002222000099990000000000
-1111100002fff200011151158988888808000fff00000000c00ccc0000dddd0000dddd00005b5bb0005b5bb000555000005550000288882209aaaa9000044000
-0cccc0000f1f1f0001111122889898880080fff40000000000cc0cc000dd5dd000dd5dd0005bbb00005bbb0005bbb00005bbb000288585829aa9aaa900644600
-061f160000f2f00001777100898989880008ff400c0cc00000c000c000ddd10000ddd10000b111b00bb111000b5b50000b5b5000288858829aaa9aa906999960
-06fff6000e222e00115551118888988800f884000c000c00000000c0002dd200002dd20000b1110bb011110005bbb00005bbb0b02885858299aaaa9906997960
-011611f4eeeeeee050111105988888980fff400000c0c000cccc00c00d222200002222d0001b11000011110006666b4006666640288888229a9999a906979960
-f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd00001116600661111006b66640b66666042882220009aaaa9006999960
-012121040771770005101500888888890f400000000000000cccc00000dd000000d00dd000660000000006600656660006665604822000000099990000666600
-0000012000000110556655661dddddddf44444452222222222222222000000000000000000660000000000e04424424444244244005555000055550000aaa000
-0000115200001120665566551ddddddd4222222521111111111111120000000000000000006660e00e666e5e2244442222444422057777550577775506444600
-0000122210001252556611661ddddddd42222225211555555555511200000000000000000ee66e5eee666eee4244442442444424577777755779977504141400
-1122220011222222665511551ddddddd4222222521dddddddddddd120000000000000000eeeeeeeeeee66e00442222444422224457757575579aa97508444800
-1222222022222200556611661ddddddd4222222521dddddddddddd120000000000000000eeeeee000eeeeee04424411111144244575757755779977507777780
-1222222222222220662266551ddddddd42222225266666666666666200000000000000000eeeeee0050000504241111111111424577777555777775577777778
-4022020292009020552455661ddddddd422222252666666666666662000000000000000005000050000000002411111111111142577555005775550045555548
-9090090909000090662266551ddddddd45555551266666666666666200000000000000000000000000000000441111111111114475500000755000008dd5dd88
-000000004242424222222222dddddddd000000000000000000000000000bbb00000bbb0000006600006666600000000000000000000000005555555500000000
-000550004242424244444444dddddddd0003330000333000000b0b00000b5bb0000b5bb060067760067777700004400000044000000440005dd5d55500000000
-005555004242444221122222dddddddd0033b330033b33000b000000000bbb00000bbb000067575006757570006446000064460000644600555d55d500000000
-055555504442424241144444dddddddd003bbb333bbbbb300000000000ddddd00ddddd0006777760067777600688886006cccc6006bbbb605555555500000000
-055555504242424221122222dddddddd03bb8b833bb8b8300b0000b000dbdd0bb0dddd0006755677606755600688786006cc7c6006bb7b601111111100000000
-015555104244424244445544dddddddd03bbbbb33bbbbb3000000000001111000011110006776600006766000687886006c7cc6006b7bb601111111100000000
-011551104242424222225122dddddddd03bbbbb333bbbb30000b0000001116600661110006760060066660000688886006cccc6006bbbb601111111100000000
-010110104242424244445544dddddddd033333330333333000000000006600000000066066600000000000600066660000666600006666001111111181818181
-e1e1e1e1e1e1e1e0f04262d0e1e1f142625313131313131313131313131313132121212121212121332121616161616161212121212121218181818181818181
-818181818181818181818181810000000000000000e1e1e1f2212121212121d2e1e1e10000000000000000000000000000353535353535354646353535353535
+0111000001110000011100005151515100060000000000000000800000777770077777000088880000888800dd5dda555dddddd5005555005555555555555555
+1111100011111000111110001515151500060000000880000008880000757570075757000024544000245440dd5556d55dd66dd5057777555554455551111115
+0cccc0000cccc0000cccc00051515151000600000088980008800880007757700775770000274400702444005595d6d556dddd65577997755544445551111115
+065f5600065f5600065f560015151515000600000089980000800800070750070075000000676640766666005d6dd6555d66a6d5579aa9755444444551111115
+06fff60006fff60006fff6f051515151000600000089880000800800007777707777770000d4da0440ddad005d6dd5dd5ddd5dd557799775555aa555555aa555
+011611f401161f400116114015151515005550000008800000888000005775000057557000656600506666005d6555dd5dd64dd5577777555444444554444445
+f111110401f11140f1111104515151510009000000000000080800000075577077757700006661100116660055ddd55556dd4d65577555005444444554444445
+0121210401211100011121041515151500050000000000000000000007700000700007700011000000000110d5ddd5dd5d6666d5755000005555555555555555
+01110000002220000011150088988888000000f000000000ccc00000000dd000000dd0000055bb000055bb00000000000000000000222200009999004d1261d4
+1111100002fff200011151158988888808000fff00000000c00ccc0000dddd0000dddd00005b5bb0005b5bb000777000007770000288882209aaaa904d1261d4
+0cccc0000f1f1f0001111122889898880080fff40000000000cc0cc000dd5dd000dd5dd0005bbb00005bbb0007bbb00007bbb000288585829aa9aaa945555554
+061f160000f2f00001777100898989880008ff400c0cc00000c000c000ddd10000ddd10000b111b00bb111000b5b50000b5b5000288858829aaa9aa944444444
+06fff6000e222e00115551118888988800f884000c000c00000000c0002dd200002dd20000b1110bb011110007bbb00007bbb0b02885858299aaaa9941621264
+011611f4eeeeeee050111105988888980fff400000c0c000cccc00c00d222200002222d0001b11000011110006666b4006666640288888229a9999a941621264
+f1111104f11111f00010100088989888fff40000000c0000cc00ccc000dddd0000dddd00001116600661111006b66640b66666042882220009aaaa9045555554
+012121040771770005101500888888890f400000000000000cccc00000dd000000d00dd000660000000006600656660006665604822000000099990044444444
+000001200000011055665566dd999955f444444522222222222222222222222222d22ddd00660000000000e04424424444244244005555000055550000999000
+000011520000112066556655d95d55954222222521111111111111122222222222dddd2d006660e00e666e5e2244442222444422057777550577775506444600
+0000122210001252556611669d9dd9d942222225211555555555511244444444dddd2d2d0ee66e5eee666eee4244442442444424577777755779977504141400
+1122220011222222665511559dd99dd94222222521dddddddddddd12416d62d4d2d22dddeeeeeeeeeee66e00442222444422224457757575579aa97508444800
+122222202222220055661166999999994222222521dddddddddddd12416d62d4d2d22d22eeeeee000eeeeee04424411111144244575757755779977507777780
+1222222222222220662266559dd99dd9422222252666666666666662416d62d4d2dddd220eeeeee0050000504241111111111424577777555777775587777788
+40220202920090205524556659dd959542222225266666666666666245555554dd222ddd05000050000000002411111111111142577555005775550045555548
+909009090900009066226655dd9999dd455555512666666666666662444444442d222d220000000000000000441111111111114475500000755000008dd5dd88
+00000000424242422222222255555555000000000000000000000000000bbb00000bbb0000006600006666600000000000000000000000005555555500000000
+00055000424242424444444450000005000333000033300000000f00000b5bb0000b5bb060067760067777700004400000044000000440005dd5d55500000000
+00555500424244422112222250b5bb050033b330033b330000fff000000bbb00000bbb000067575006757570006446000064460000644600555d55d500000000
+05555550444242424114444450bbb505003bbb333bbbbb300004400000ddddd00ddddd0006777760067777600688886006cccc6006bbbb605555555500000000
+0555555042424242211222225000000503bb8b833bb8b83000ffff0000dbdd0bb0dddd0006755677606755600688786006cc7c6006bb7b601111111100000000
+0155551042444242444455445000000503bbbbb33bbbbb300ffffff0001111000011110006776600006766000687886006c7cc6006b7bb601111111100000000
+0115511042424242222251225000000503bbbbb333bbbb30ff5f5f5f001116600661110006760060066660000688886006cccc6006bbbb601111111100000000
+010110104242424244445544005555000333333303333330ffffffff006600000000066066600000000000600066660000666600006666001111111181818181
+e1e1e1e1e1e1e1e0f04262d0e1e1f142625313131313131313131313131313131313131313131313332121616161616161212121212121218181818181818181
+81818181818181818181818181000000000000000000000000000000000000000000000000000000000000000000000000353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f02121212121212121212121212121212121212121212121332121618181818161212121212161617181818181818181
-818181818181818181818181810000000000000000e1e1f12183838383212121d1e1e18383838383838383838383838383353535353535351717353535353535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0f0e0f02121212121332121618121028161616161616161708182828281818181
-818181818181818181818181810000000000000000e1e1f2218321218321212121d2e18383838383838383838383838383353535353535354646353535353535
+81818181818181818181818181000000000000000000000000000000000000000000008383838383838383838383838383353535353535351717353535353535
+e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0f02121212121332121618121028161616161616161708182828281818181
+8181818181818181818181818100000000000000e1e1e1e1e1e1e1e1e1e1e1e1e1e1008383838383838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f1212121212102212121d2e1e1e1e1e1010362d1e1e1f021212121332121616121c38181808080808080819161616171818181
-818181818181818181818181810000000000000000e1f22121838383832121212121d19383838393838383938383839383353535353535354646353535353535
+8181818181818181818181818100000000000000e1e1f2212121212121d2e2e1e1e1008383838383838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f121616161616161612121d1e1e1e1e1035262d1e1e1f22121212133212121c130218181818181818181819161616171818181
-818181818181818181818181810000000000000000f1212121212183212126212121d18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000e1f1212183838383212121d2e1e1008383838383838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f1616170808080806161d0e1e1e1e1e1f02102d1e1f22121212121332121b32121b17282828282828281818180808081818181
-818181818181818181818181810000000000000000f12121212621832121c3212121d18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000e1f121218321218321212121d2e10083838383838383b493b483838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f1616171818181819061d2e2f22121d1f1e0f0d1f22121212121213321b321d0e0f16161616161616172828181818181818181
-818181818181818181818181810000000000000000f1212121332183133021212121d18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000f1212121838383832121212121d1008383838383838383b48383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f16161718121818191616161616121d1e1f021212121212121212133b3400360d2e1f021212121216161616181818181818181
-818181818181818181818181810000000000000000f1212121e32183212126212121d18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000f1212121212183212126212121d1008383c4b483838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f16161718181218181906170906121d1f121212121212121212121b34003030360d1f121212121212121216161718181818181
-818181818181818181818181810000000000000000e1f02121212083212133212121d18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000f12121212621832121c3212121d1008383b483c0c0c0c0c08383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f161617181818121219161729261e2f121212121212121212121b3400303030362d1f121212121212140602161718181818181
-818181818181818181818181810000000000000000e1f121212121831313632121d0e19383838393838383938383839383353535353535354646353535353535
+8181818181818181818181818100000000000000f12121213321831330212121d0e10083838383c0c0c0c0c08383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f1616171818181818191616161612121212121212121212121b321420303030362d1e1e0e0e021212142622161818181818181
-818181818181818181818181810000000000000000e1f1212121218321212121d0e1e18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000f1212121e321832121262121d1e10083838383c0c0c0c0c08383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f16161728281818181926121213321212121212121212121d321212142525252d0e1e1e1e1e1f0e0e0f0212161818181818181
-818181818181818181818181810000000000000000e1e1e0f02121832121d0e0e1e1e18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000e1e0f0212120832121332121d1e1008383838383838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1f16161616172828292616121215313131313131313131313631313a121d0e0e0e1e1e1e1e1e1010101e1e0f161818181818181
-818181818181818181818181810000000000000000e1e1e1e1f0218321d0e1e1e1e1e18383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000e1e1f121212183131363212121d10083838383838383838383c4838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f0616161616161612121d0e0e0e0e0f021212121212121212121a3d1e2f22121d1f1214203030362216181818181818181
-81818181818181818181818181000000000000000000000000002121210000000000008383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000e1e1f12121218321212121b121d1008383838383838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f02121212121212121d0e1e1e1e1e1e1f0212121212121214060d0e1021323212121212142036221616181818181818181
-81818181818181818181818181000000000000000000e10101e2e2e2e2e2e2e2e1e1008383838383838383838383838383353535353535354646353535353535
+8181818181818181818181818100000000000000e1e1e1f0212183212121d0e1e1e1008383838383838383838383838383353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f0212121212121d0e1e1e1e1e1f021212121212121214062d0e152622133212121212142526221618181818181818181
-81818181818181818181818181000000000000000000f10303602121212121d2e1e1000000000000838383000000000000353535353535354646353535353535
+8181818181818181818181818100000000000000e1e1e1e1f0218321d0e1e1e1e1e1000000000000838383000000000000353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0e0e0e0e0e1e1e1e1e1e1e1e0e0e0f02121212121d0e16221212133212121212121212121618181818181818181
-81818181818181818181818181000000000000000000f1030303602121212121d2e1353535353535353535353535353535353535353535351717353535353535
+81818181818181818181818181000000000000000000000000212121000000000000353535353535353535353535353535353535353535351717353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0e0e0e0e1f12121212133212121212121616161618181818181818181
-81818181818181818181818181000000000000000000f1030352622121212121d1e1353535353535353535353535353535353535353535354646353535353535
+81818181818181818181818181000000000000007676767676767676767676767676353535353535353535353535353535353535353535354646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f02121212133216161616161617081818181818181818181
-81818181818181818181818181000000000000000000f14262212121212121d0e1e1353535353535353535353535353535353535354646464646353535353535
+8181818181818181818181818100000000000000f5f5f5f5f5f5f5f5f5f5f5f5f5f5353535353535353535353535353535353535354646464646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f12140602133216170808080808181818181818181818181
-81818181818181818181818181000000000000000000f12121212121212121d1e1e1353535353535354646353535353535353546464646464646353535353535
+81818181818181818181818181000000000000008383b4838383c086838383838386353535353535354646353535353535353546464646464646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f042622133216181818181818181818181818181818181
-81818181818181818181818181000000000000000000e1f0212121212121d0e1e1e1353535353535354646353535353535353546464646464646353535353535
+8181818181818181818181818100000000000000b4c036c0b483c086838383838386353535353535354646353535353535353546464646464646353535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f0212153026181818282818181818181818181818181
-81818181818181818181818181000000000000000000e1e1e0f02121d0e0e1e1e1e1353535353546464646464635353535353546464635354646463535353535
+8181818181818181818181818100000000000000b4c0c0c0b483c086838383768386353535353546464646464635353535353546464635354646463535353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f021216181816161718181818181818181818181
-81818181818181818181818181000000000000000000000000002121000000000000353535354646464646464646353535353546463535354646464635353535
+8181818181818181818181818100000000000000838383838383c086838383f58386353535354646464646464646353535353546463535354646464635353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f08181816161818181618181818181818181
-81818181818181818181818181000000000000000000e1e2e2e2e2e2e2e2e2e2e1e1353535464646464646464646463535353546463535353546464646353535
+8181818181818181818181818100000000000000767683837676c086838383838386353535464646464646464646463535353546463535353546464646353535
 e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f18181818081818161618181818181818181
-81818181818181818181818181000000000000000000e1e1e1e1e183838383e1e1e1353535354646464646464646353535353546463535353535464646463535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f18181818181816161818181818181818181
-81818181818181818181818181000000000000000000e1e1e183838383838383e1e1353535353546464646464635353535353546464635353535354646463535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0e0e081818181818181818181818181
-81818181818181818181818181000000000000000000e1e1838383838383838383e1353535353535354646353535353535353546464646353535464646463535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1818181818181818181818181
-81818181818181818181818181000000000000000000e183838383838383838383e1353535353535354646353535353535353535464646463546464646353535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1818181818181818181
-81818181818181818181818181000000000000000000e183838383838383838383e1353535353535354646353535353535353535354646464646464646353535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e18181818181818181
-81818181818181818181818181000000000000000000e1e1838383838383e1e1e1e1353535353535354646353535353535353535353546464646463535353535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e181818181818181
-81818181818181818181818181000000000000000000e1e1e1e18383e1e1e1e1e1e1353535353535354646353535353535353535353535464646353535353535
-e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1818181818181
-81818181818181818181818181000000000000000000000000008383000000000000353535353535351717353535353535353535353535351717353535353535
+8181818181818181818181818100000000000000f5f58383f5f5c086838383838386353535354646464646464646353535353546463535353535464646463535
+0000000000000000000000000000000000000000e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f18181818181816161818181818181818181
+818181818181818181818181810000000000000083b483b48386c086838383833786353535353546464646464635353535353546464635353535354646463535
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e0e081818181818181818181818181
+8181818181818181818181818100000000000000838383838386c08683b483838386353535353535354646353535353535353546464646353535464646463535
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000818181818181818181818181
+8181818181818181818181818100000000000000767683837676c086833736b48386353535353535354646353535353535353535464646463546464646353535
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000818181818181818181
+8181818181818181818181818100000000000000f5f5b483f5f5c0868383b4838386353535353535354646353535353535353535354646464646464646353535
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008181818181818181
+8181818181818181818181818100000000000000838336b48386c086838383838386353535353535354646353535353535353535353546464646463535353535
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000081818181818181
+8181818181818181818181818100000000000000838383838386c086868686868686353535353535354646353535353535353535353535464646353535353535
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000818181818181
+81818181818181818181818181000000000000000000000000838383000000000000353535353535351717353535353535353535353535351717353535353535
 __gff__
-0100000000000001010101010001010101010001020200010101000100010101020101010000000101010000000101010000000000000000000100000000000000000006000000808080808080000000010101010000008080808080800000000000010200000080808080020200000001000001000000808000000000000100
+0100000000000001010101010001010101010001020200010101000100010101020101010000000101010000000101010000000000000000000100000000000001000006000000808080800001000100010101010000008080808080800000010000010000000001008080020200000001000001000000808000000000000100
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e1e1e1e1e1e1e1e1e1e1e1e01010101010101010101010101010101010101010101013c013c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e01010101010101010101010101010101010101010101013c013c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000001e1e1e1e1e1e1e1e1e1e1e1e1e1e000000000000000000000000000000
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e010101010101010101010101010101010101010101010101013c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000001e1e1e2f1212121212122d1e1e1e000000000000000000000000000000
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e1e1f12121212121212121d1e1e383838383838383838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e1e2f1212121212121212122d1e383838383838383838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e2f12121212621212121212121d383838383838383838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000001f12121212123e1212121212121d383838383938383839383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000001f1212121212123a123c1212121d38383838380c0c0c38383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2101010101010101010101010101010101010101010101010118181818181818181818181818181818181818181818000000000000000000000000000000000000000000001f121262121212123b121212121d38383838380c0c0c38383838383800
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003c003c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003c003c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000001e1e1e1e1e1e1e1e1e1e1e1e1e1e000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003c3c3c3c3c3c3c3c3c3c3c3c3c000000000000000000000000000000000000000000000000000000000000001e1e1e2f1212121212122d1e1e1e000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e1e1f12121212121212121d1e1e383838383838383838383838383800
+0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e1e2f1212121212121212122d1e383838383838383838383838383800
+0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e2f12121212621212121212121d383838383838383838383838383800
+0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001f12121212123e1212121212121d383838384c4b384b39383838383800
+0000000000000000000000000000000000001e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000001f1212121212123a123c1212121d38383838380c0c0c38383838383800
+0000001e1e001e00001e001e001e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2101010101010101010101010101010101010101010101010118181818181818181818181818181818181818181818000000000000000000000000000000000000000000001f121262121212123b121212121d38383838380c0c0c38383838383800
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e222e0101010101010101010101010101010101010101010118181818181818181818181818181818181818181818000000000000000000000000000000000000000000001f1212123a12123b12121212121d38383838380c0c0c38383838383800
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0101010101010101010101010101010101010101010101010101181818181818181818181818181818181818000000000000000000000000000000000000000000001e0f1212123a3b1212121212121d3838383838380c3838383838383800
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2322222223222223010101010101010101010101010101010122181818181818181818181818181818181818000000000000000000000000000000000000000000001e1f121212123f12121212120d1e3838383838380c3838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e1e1e1e1e1e1f2525122d2e2f282818181818181818220101010101010101010101010101012218181818181818181818181818181818181818000000000000000000000000000000000000000000001e1f1212121233121212120d1e1e3838383838380c3838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e331d1e1e1e1e10252506040506161627282818181818182201010101010101012222220101221818181818181818181818181818181818181818000000000000000000000000000000000000000000001e1e0e0f12123312120d0e1e1e1e3838383839380c3839383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f1e331d1e1e1e102525300d0e0e0e0f1616161627181818181822220101222201010d0f120101181818181818181818181818181818181818181818000000000000000016161616161616161616161616161e1e1e1e0f1233120d1e1e1e1e1e3838383838380c3838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123c1d1e1e1e1e0e0e0e1e1e1e1e1f1220121616272818181804060101121201011d1e0f01011818181818181818181818181818181818181818180000000000000000161818181818181818181818181800000000001212120000000000003838383838380c3838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b121d2e2e1e1e1e1e1e102d1e1e1f1212121216161627281824260101121201011d1e1f0101120d0f12181818180d0e0e0e0e0e181818181818180000000000000000161818181212121212121818181800002e2e2e2e2e2e2e2e2e2e2e2e383838383838383838383838383800
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b120d1e123b1d1e1e1e103030260d1e0e0e0e0e0e0f1616160406122123121201011d1e1f210104101006181818181d1e1e1e1e1e0f1818181818180000000000000000181818121212121212121218181800001f121212121212121212121d000000000038383800000000000000
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f12123b120d2f123b121d1e1f10303026121d1e1e2e2e1e1e1e0e0f120405060405061221231d1e1f1223243030261818180d1e1e1e1e1e1e1f1818181818180000000000000000181818121212121212121212181800001f121212121212121212121d535353535353537171535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f123d120d1e123b12121d1e2f252526121224252612241d1e1e1e1f12040d0f30302612120d1e1e2f1204123030261818181d1e1e1e1e1e1e1e0f18181818180000000000000000181812121212121212121212121800001f121212121212121212121d536464646464646464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f12330d2f123b12120d1e2f12121212121c3131311a121d1e1e1e1f121d1e1e0e0e0f200d2e2e2f120430303025261818181d10101e1e1e1e2f1818181818180000000000000000181212621212121212121212121800001f121212121212121212121d536464646464646464535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120406123a12121d1e1f121d1e1f16162f0d1e0f12141530303026181818180d1e3030102e2e2e2f18181818181800000000000000001812123e1212621212121212121800001f121212121212121212121d536464535353535353535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e12123a3d12120d1e2f12123b123e3b121204303006123a3c04100b121d1e1f07161616162d0f121212122618180d0e0e1e10302525061818181818181818180000000000000000181212123a12331212121212121800001f121212121212121212121d536464645353535353535353535353
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0f123a12122d2f12123b1212121212303030303006123a24300b120b101617080809162d1e0e0e0e0f1b18122d6b6c2f2526121218181818181818181818000000000000000018121212123a331212121212121800001e0e0e0f12120d0e0e0e0e1e536464646464646464646464646464
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f123a121212123b120d0e0f123030303030303006123f240b120b2616271b121916122d2e2e2e2f181812121212121218181818181818181818181818000000000000000018121212121233621212121212180000000000001212000000000000536464646464646464646464646464
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2e1e1e1e1e1e1f2525122d2e2f282818181818181818220101010101010101010101010101012218181818181818181818181818181818181818000000000000000000000000000000000000000000001e1f1212121233121212120d1e1e38383838384b0c4b38383838383800
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e331d1e1e1e1e10252506040506161627282818181818182201010101010101012222220101221818181818181818181818181818181818181818000000000000000000000000000000000000000000001e1e0e0f12123312120d0e1e1e1e3838383839380c384c383838383800
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f1e331d1e1e1e102525300d0e0e0e0f1616161627181818181822220101222201010d0f120101181818181818181818181818181818181818181818000000000000000018181818181818181818181818181e1e1e1e0f1233120d1e1e1e1e1e3838383838380c3838383838383800
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123c1d1e1e1e1e0e0e0e1e1e1e1e1f1220121616272818181804060101121201011d1e0f010118181818181818181818181818181818181818181800000000000000001818181818181818181818181818000000000012121200000000000038383838384b0c4b38383838383800
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b121d2e2e1e1e1e1e1e102d1e1e1f1212121216161627281824260101121201011d1e1f0101120d0f12181818180d0e0e0e0e0e1818181818181800000000000000001818181812121212121218181818001e2e2e2e2e2e2e2e2e2e1e1e53383838383838383838383838383800
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e2f12123b120d1e123b1d1e1e1e103030260d1e0e0e0e0e0e0f1616160406122123121201011d1e1f210104101006181818181d1e1e1e1e1e0f18181818181800000000000000001818181212121212121212181818001e1e1e1e1e383838381e1e1e53000000000038383800000000000000
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f12123b120d2f123b121d1e1f10303026121d1e1e2e2e1e1e1e0e0f120d2e0f0405061221231d1e1f1223243030261818180d1e1e1e1e1e1e1f18181818181800000000000000001818181212121212121212121818001e1e1e383838383838381e1e53535353535353537171535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f123d120d1e123b12121d1e2f252526121224252612241d1e1e1e1f122d2e2e0f302612120d1e1e2f1204123030261818181d1e1e1e1e1e1e1e0f181818181800000000000000001818121212121212121212121218001e1e3838383838383838381e53536464646464646464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f12330d2f123b12120d1e2f12121212121c3131311a121d1e1e1e1f120b12122d0e0f200d2e2e2f120430303025261818181d10101e1e1e1e2f18181818181800000000000000001812126212121212121212121218001e383838383838383838381e53536464646464646464535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1f123e12123b12120d1e2f12123b3f123b12120406123a12121d1e1f120b121212122d0e1e0f12141530303026181818180d1e3030102e2e2e2f18181818181800000000000000001812123e12126212121212121218001e383838383838383838381e53536464535353535353535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e12123a3d12120d1e2f12123b123e3b121204303006123a3c04100b120b121616161616162d0f121212122618180d0e0e1e10302525061818181818181818180000000000000000181212123a123312121212121218001e1e3838383838381e1e1e1e53536464645353535353535353535353
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e0e0f123a12122d2f12123b1212121212303030303006123a24300b120b301617080809162d1e0e0e0e0f1b18122d6b6c2f2526121218181818181818181818000000000000000018121212123a3312121212121218001e1e1e1e38381e1e1e1e1e1e53536464646464646464646464646464
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e0f123a121212123b120d0e0f123030303030303006123f240b120b2616271b121916122d2e2e2e2f181812121212121218181818181818181818181818000000000000000018121212121233621212121212180000000000383800000000000053536464646464646464646464646464
 1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f10100f123f12123b120d1e1e1e0f04303030303030300633120b120b061616272829160406121b12121812120405050506181818181818181818181818180000000000000000181212121212333c1212121212180000000000000000000000000000535364646464646464646464646464
-1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f24262d0f3312123a12122d1e1010303030303030303026330d1e1e1f24061616161616042612121212181212243030302612121212181818181818181818000000000000000018181212121233121212120d0f180000717171717171717171717171535353535353535353535353646464
-1e1e1e1e1e1e1e1e1e1e101e1e1e1e123a12123c1212123a12122d0f303030303030303030263e0b12120b122405050505052612121212121812121212242612123312121818181818181818180000000000000000181812121212331212120d1e2e180000717171717171717171717171536464646464646464646464646464
-1e1e1e1e1e1e1e1e1e10301e1e1e1e06123f3b12120d0f123a12121e1f242525252525252526123a202012121212121212121212121c3131313131313131313131371218181818181818181818000000000000000018181818181233120d0e1e1e2e180000717171717171717171717171536464646464646464646464646464
+1e1e1e1e1e1e1e1e1e1e1e1e1e1e1f24262d0f3312123a1212122d1e10303030303030303026330d1e1e1f24061616161616042612121212181212243030302612121212181818181818181818000000000000000018181212121233121212120d0f180000717171717171717171717171535353535353535353535353646464
+1e1e1e1e1e1e1e1e1e1e101e1e1e1e123a12123c1212123a1212120b303030303030303030263e0b12120b122405050505052612121212121812121212242612123312121818181818181818180000000000000000181812121212331212120d1e2e180000717171717171717171717171536464646464646464646464646464
+1e1e1e1e1e1e1e1e1e10301e1e1e1e06123f3b12120d0e0f3a12121d0f242525252525252526123a202012121212121212121212121c3131313131313131313131371218181818181818181818000000000000000018181818181233120d0e1e1e2e180000717171717171717171717171536464646464646464646464646464
 1e1e1e1e1e1e1e1f103030102d1e2430063312120d1f1415123f122d1e0e0e0e0e0e0e0f1b0406123f12121212121212121212123b120406121212121212121818181818181818181818181818000000000000000000000000001212120000000000000000717171717171717171717171536464645353535353535353535353
-1e1e1e1e1e1e1f10303030051d1e1f302633120d1e1f1231123e12122d1e1e1e1e1e1e2f1204302633121212121212121212123d12040506181818181818181818181818181818181818181818000000000000000000000000000000000000000000000000717171717171717171717171536464646464646464535353535353
-1e1e1e1e1e1e1f30303030061d1e1f302633122d1e1e0e0e0f123a12122d1e1e1e1e2f12122425263331313131313131313131361212121218181818181818181818181818181818181818181800000000000000001e1e1e1e1e1e1e1e1e1e1e1e1e1e0000000000000012120000000000536464646464646464535353535353
+1e1e1e1e1e1e1f10303030051d1e1f302633120d1e1f1235313e12122d1e1e1e1e1e1e2f1204302633121212121212121212123d12040506181818181818181818181818181818181818181818000000000000000000000000000000000000000000000000717171717171717171717171536464646464646464535353535353
+1e1e1e1e1e1e1f30303030061d1e1f302633122d1e2f121212123a12122d1e1e1e1e2f121224252633313131313131313131313612121212181818181818181818181818181818181818181818000000000000000000000000000000000000000000000000000000000012120000000000536464646464646464535353535353
 __sfx__
 000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011100200c233116330c233116330c2331920031610000000c2331163311633116330c2330000031610000000c233316000c233116330c2331160311633316100c2333161011633316000c233116001163311633
